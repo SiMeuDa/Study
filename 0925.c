@@ -37,6 +37,26 @@ LeeO3(void)
     return 0;
 }
 
+#include <float.h>
+LeeO4(void)
+{
+    printf("float min: %e, Max: %e \n", FLT_MIN, FLT_MAX);
+    printf("doulble min: %e, Max: %e \n", DBL_MIN, DBL_MAX);
+
+    return 0;
+}
+
+LeeO5(void)
+{
+    float num1 = 0.123456789012345;
+    double num2 = 0.123456789012345;
+
+    printf("float:%f \t double: %lf\n", num1, num2);
+    printf("float:%.15f \t double: %lf\n", num1, num2);
+
+    return 0;
+}
+
 int main(void)
 {
     int a;
@@ -54,6 +74,12 @@ int main(void)
             break;
         case 3:
             LeeO3();
+            break;
+        case 4:
+            LeeO4();
+            break;
+        case 5:
+            LeeO5();
             break;
         default:
             break;
