@@ -1,7 +1,7 @@
 # LINEAR DATA TYPE
 
-### _[STACK](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/stack)
-### _[QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue)
+### _ [STACK](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/stack)
+### _ [QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue)
   #### [Linear QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue/linear)
   #### [Circular QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue/circular)
 ### [DEQUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/deque)
