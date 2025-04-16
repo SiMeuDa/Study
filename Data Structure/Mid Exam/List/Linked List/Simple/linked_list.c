@@ -10,8 +10,6 @@ int main(void)
 {
     LinkedList* head = NULL;
 
-    init_linkedlist(head);
-
     for(int i = 0; i < 5; i++){
         head = insert_first(head, i);
         print_list(head);
