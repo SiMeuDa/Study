@@ -2,5 +2,9 @@
 
 ## [STACK](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/stack)
 ## [QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue)
-## DEQUE
-## LINKED LIST
+### [Linear QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue/linear)
+### [Circular QUEUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/queue/circular)
+## [DEQUE](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/deque)
+## [LIST](https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/List)
+### [Array LIST] (https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/List/Array List)
+### [Linked LIST] (https://github.com/SiMeuDa/Study/tree/TT_2024-02/Data%20Structure/Mid%20Exam/List/Linked List)
