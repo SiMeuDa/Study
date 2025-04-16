@@ -11,13 +11,6 @@ typedef struct Linknode{
     struct Linknode* link;
 }LinkedList;
 
-void init_linkedlist(LinkedList* head){
-    head = (LinkedList*)malloc(sizeof(LinkedList));
-
-    head->link = NULL;
-    head->data = EOF;
-}
-
 int get_length(LinkedList* head){
     int count = 0;
     for(LinkedList* p = head; p != NULL; p = p->link)
