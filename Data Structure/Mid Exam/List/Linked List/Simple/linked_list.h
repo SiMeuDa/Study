@@ -61,11 +61,7 @@ LinkedList* delete_first(LinkedList* head){
 
 LinkedList* delete(LinkedList* head, LinkedList* pre){
     LinkedList* removed;
-    if(removed == NULL)
-    {
-        Error("Failed to allocate Memory");
-        free(head);
-    }
+
     removed = pre->link;
     pre->link = removed->link;
     free(removed);
