@@ -1,64 +1,68 @@
 #pragma once
-#include <cstring>
+#include "caesar.h"
 
-class vigenere{
+class vigenere : private caesar{
 private:
-	char* text;
-
-	//copy origin text to memeber variable
-	bool text_copy(char* text)
-	{
-		int t_len = strlen(text);
-
-		this->text = new char[t_len + 1];
-		if(this->text == nullptr)
-			return true;
-
-		for(int i = 0; i < t_len; i++)
-			this->text[i] = text[i];
-		this->text[t_len] = '\0';
-		
-		return false;
-	}
-
-	bool key_chck(char* key)
-	{//check key whether upper case or others
-		int len = strlen(key);
-
-		for(int i = 0; i < len; i++)
-			if(key[i] > 'Z' || key[i] < 'A')
-				return true;
-		return false;
-	}
 public:
-	vigenere(){};
-	~vigenere(){};
+	vigenere() {}
+	~vigenere() {}
 
-	//main function (may cause over head)
-	char* cihper(char* msg, char* key){
-		if(key_chck(key))
-			return nullptr;
-		
-		int k_len = strlen(key);
-		int msg_len = strlen(msg);
-		if(text_copy(msg))
-			return nullptr;
+	std::string crypto(const char* msg, const char* key)
+	{
+		std::string text = msg;
+		std::string skey = key;
+		int t_len = text.length();
+		volatile int k_len= skey.length();
 
-		static int j = 0;
-		
-	
-		for(int i = 0; i < msg_len; i++)
+		int i, j = 0;
+		for(i = 0; i < t_len; i++)
 		{
-			text[i] += key[j] - 'A';
-			if(text[i] > 'Z')
-				text[i] -= 26;
+			if(j == k_len - 1)
+				j = 0;
+			if(isdigit(skey[j]))
+				text[i] = circular(text[i], (int)(skey[j] - '0'));
+			else if(isalpha(skey[j]))
+			{
+				if(isupper(skey[j]))
+					text[i] = circular(text[i], (int)(skey[i] - 'A'));
+				else
+					text[i] = circular(text[i], (int)(skey[j] - 'a'));
+			}
+			j++;
+		}
+		skey = "";
+		k_len = 0;
+
+		return text;
+	}
+
+	std::string decrypto(const char* msg, const char* key)
+	{
+		std::string text = msg, skey = key;
+		int t_len = text.length();
+		volatile int k_len = skey.length(), de_key;
+		int i, j = 0;
+
+		for(i = 0; i < t_len; i++)
+		{
+			if(j == k_len - 1)
+				j = 0;
+			if(isdigit(skey[j]))
+				de_key = 10 - (int)(skey[j] - '0');
+			else if(isalpha(skey[j]))
+			{
+				if(isupper(skey[j]))
+					de_key = 26 - (int)(skey[j] - 'A');
+				else
+					de_key = 26 - (int)(skey[j] - 'a');
+			}
 			j++;
 
-			if(j == k_len)
-				j = 0;
+			text[i] = circular(text[i], de_key);
 		}
 
-		j = 0;
+		skey = "";
+		k_len = 0;
 
 		return text;
 	}
