@@ -1,0 +1,8 @@
+# 파일 추가
+git add .
+
+# 커밋
+git commit -m "[커밋 메시지]"
+
+#2026-01 branch에 전송
+git push
