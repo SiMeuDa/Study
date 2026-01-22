@@ -7,13 +7,6 @@ using namespace std;
 
 int main(void)
 {
-//Initialize Array
-	int dice[QTY][6] = {
-		{1, 2, 3, 4, 5, 6},
-		{1, 2, 3, 4, 5, 6},
-		{1, 2, 3, 4, 5, 6}
-	};
-	
 	int output[QTY], money = 0;
 
 	for(int i = 0; i < QTY; i++)
@@ -26,9 +19,9 @@ int main(void)
 		else
 			money = CAC(1000, output[0], 100);
 	}
-	else if(output[1] == output[2])
+	else if(output[1] == output[2] || output[0] == output[2])
 	{
-		money = CAC(1000, output[1], 100);
+		money = CAC(1000, output[2], 100);
 	}
 	else
 	{
