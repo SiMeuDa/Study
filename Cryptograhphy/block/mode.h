@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "caesar.h"
-using namespace std;
+using std::string
 
 class mode{
 private:
