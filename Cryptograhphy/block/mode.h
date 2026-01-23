@@ -1,7 +1,7 @@
 #pragma once
+#define BYTE 16
 #include <string>
-#include "caesar.h"
-using std::string
+using std::string;
 
 class mode{
 private:
@@ -11,17 +11,17 @@ private:
 
 	inline void common(string msg)
 	{
-		while(msg.length() % 4)
+		while(msg.length() % BYTE)
 			msg.append("*");
 		len = msg.length();
-		b_count = len / 4;
+		b_count = len / BYTE;
 		text = new char*[b_count];
 		
 		for(int i = 0; i < b_count; i++){
-			text[i] = new char[5];
+			text[i] = new char[BYTE + 1];
 			for(int j = 0; j < b_count; j++)
 				(text[i])[j] = msg[j + ((i * b_count)];
-			(text[i])[4] = '\0';
+			(text[i])[BYTE] = '\0';
 		}
 	}
 public:
@@ -56,7 +56,7 @@ public:
 				temp = text[i];
 			
 
-			for(int j = 0; j < 4; j++)
+			for(int j = 0; j < BYTE; j++)
 			{
 				(text[i])[j] = (text[i])[j] ^ temp[j % temp.length()];
 				//Encihper Logic
@@ -91,8 +91,8 @@ public:
 
 			before = text[i];
 			
-			for(int j = 0; j < 4; j++)
-				(text[i]) = temp[j] ^ (text[i])[j];
+			for(int j = 0; j < BYTE; j++)
+				(text[i])[j] = temp[j] ^ (text[i])[j];
 		}
 		//free C-style string made for decihper logic
 		for(int i = 0; i < b_count; i++)
