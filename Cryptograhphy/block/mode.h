@@ -19,8 +19,8 @@ private:
 		
 		for(int i = 0; i < b_count; i++){
 			text[i] = new char[BYTE + 1];
-			for(int j = 0; j < b_count; j++)
-				(text[i])[j] = msg[j + ((i * b_count)];
+			for(int j = 0; j < BYTE; j++)
+				(text[i])[j] = msg[j + ((i * BYTE)];
 			(text[i])[BYTE] = '\0';
 		}
 	}
@@ -53,7 +53,7 @@ public:
 				temp = VI;
 			else
 				//save before encryted block
-				temp = text[i];
+				temp = text[i - 1];
 			
 
 			for(int j = 0; j < BYTE; j++)
@@ -93,6 +93,8 @@ public:
 			
 			for(int j = 0; j < BYTE; j++)
 				(text[i])[j] = temp[j] ^ (text[i])[j];
+
+			result.append(text[i]);
 		}
 		//free C-style string made for decihper logic
 		for(int i = 0; i < b_count; i++)
