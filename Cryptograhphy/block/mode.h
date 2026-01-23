@@ -40,7 +40,7 @@ public:
 		return result;
 	}
 
-	string enCBC(const char* msg, const char* key, const char* VI)
+	string enCBC(const char* msg, const char* key, const char* IV)
 	{
 		common(msg);
 		string result = "";
@@ -50,7 +50,7 @@ public:
 		{
 			if(i == 0)
 				//save VI for first block
-				temp = VI;
+				temp = IV;
 			else
 				//save before encryted block
 				temp = text[i - 1];
@@ -72,7 +72,7 @@ public:
 		return result;
 	}
 
-	string deCBC(const char* msg, const char* key, const char* VI)
+	string deCBC(const char* msg, const char* key, const char* IV)
 	{
 		common(msg);
 		string result = "";
@@ -82,7 +82,7 @@ public:
 		{
 			if(i == 0)
 				//save VI for first block
-				temp = VI;
+				temp = IV;
 			else
 				//save before decryted block
 				temp = before;
