@@ -1,107 +1,55 @@
 #pragma once
 #define BYTE 16
 #include <string>
+#include <thread>
 using std::string;
+using std::thread;
 
 class mode{
 private:
-	char** text;
-	int b_count;
-	int len;
-
-	inline void common(string msg)
+	inline string pedding(string text)
 	{
-		while(msg.length() % BYTE)
-			msg.append("*");
-		len = msg.length();
-		b_count = len / BYTE;
-		text = new char*[b_count];
-		
-		for(int i = 0; i < b_count; i++){
-			text[i] = new char[BYTE + 1];
-			for(int j = 0; j < BYTE; j++)
-				(text[i])[j] = msg[j + ((i * BYTE)];
-			(text[i])[BYTE] = '\0';
-		}
-	}
-public:
-	string ECB(const char* msg, const char* key)
-	{
-		common(msg);
-		string result = "";
+		while(text.length() % BYTE)
+			text.append("*");
 
-		for(int i = 0; i < b_count; i++){
-			result.append(/*c.crypto(text[i], ikey, false) need Encihper Logic*/);
-			delete[] text[i];
-		}
-		delete[] text;
-		len = 0;
-
-		return result;
+		return text;
 	}
 
-	string enCBC(const char* msg, const char* key, const char* IV)
+	inline string unpedding(string text)
 	{
-		common(msg);
-		string result = "";
-		string temp;
+		for(int i = text.length() - 1; (i >=0) && (text[i] == '*'); i--)
+			text.pop_back();
+		return text;
+	}
+public://ECB, CBC, CFB, OFB, CTR
+	//Electric CodeBook
+	string ECB(string msg, string key)
+	{
+		//do peddding
+		msg = pedding(msg);
+		int len = msg.length();
+		int block_num = len / BYTE;
+		string result;
 
-		for(int i = 0; i < b_count; i++)
+		//make string block
+		string* sblock = new string[block_num];
+		if(sblock == nullptr)	//error handling
+			return "";
+		//limit block's size & copy str
+		for(int i = 0; i < block_num; i++)
 		{
-			if(i == 0)
-				//save VI for first block
-				temp = IV;
-			else
-				//save before encryted block
-				temp = text[i - 1];
-			
-
+			sblock[i].resize(BYTE);
 			for(int j = 0; j < BYTE; j++)
-			{
-				(text[i])[j] = (text[i])[j] ^ temp[j % temp.length()];
-				//Encihper Logic
-			}
-			
-			result.append(text[i]);
+				(sblock[i])[j] = msg[j + i * BYTE];
 		}
-		//free C-style string made for encihper lpgice
-		for(int i = 0; i < b_count; i++)
-			delete[] text[i];
-		delete[] text;
 
-		return result;
-	}
+		thread* tp = new thread[block_num];
 
-	string deCBC(const char* msg, const char* key, const char* IV)
-	{
-		common(msg);
-		string result = "";
-		string temp, before;
+		for(int i = 0; i < block_num; i++)
+			result.append((tp[i])(crypto(sblock[i])));
 
-		for(int i = 0; i < b_count; i++)
-		{
-			if(i == 0)
-				//save VI for first block
-				temp = IV;
-			else
-				//save before decryted block
-				temp = before;
+		delete[] sblock, tp;
 
-			//decihper logic
-
-			before = text[i];
-			
-			for(int j = 0; j < BYTE; j++)
-				(text[i])[j] = temp[j] ^ (text[i])[j];
-
-			result.append(text[i]);
-		}
-		//free C-style string made for decihper logic
-		for(int i = 0; i < b_count; i++)
-			delete[] text[i];
-		delete[] text;
-		before = "";
-	
 		return result;
 	}
 };
