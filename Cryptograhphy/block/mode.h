@@ -46,7 +46,7 @@ public://ECB, CBC, CFB, OFB, CTR
 		thread* tp = new thread[block_num];
 
 		for(int i = 0; i < block_num; i++)
-			result.append((tp[i])(crypto(sblock[i])));
+			result.append((tp[i])(crypto(sblock[i]).join()));
 
 		delete[] sblock, tp;
 
