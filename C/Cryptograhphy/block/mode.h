@@ -162,7 +162,10 @@ public://ECB, CBC, CFB, OFB, CTR
 	
 		for(int i = 0; i < block_num; i++)
 		{
-			IV = crypto(IV);
+			if(isEncipher)
+				IV = crypto(IV);
+			else
+				IV = decrypto(IV);
 
 			for(int j = 0; j < BYTE; j++)
 			{
@@ -203,6 +206,11 @@ public://ECB, CBC, CFB, OFB, CTR
 			s_count = to_string(i_count);
 			while(s_count.length() != BYTE)
 				s_count(0, "0");
+			
+			if(isEncipher)
+				s_count = crypto(s_count);
+			else
+				s_count = decrypto(s_count);
 
 			for(int j = 0; j < BYTE; j++)
 			{
