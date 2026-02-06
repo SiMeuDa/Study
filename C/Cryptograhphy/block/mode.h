@@ -159,11 +159,65 @@ public://ECB, CBC, CFB, OFB, CTR
 				(sblock[i])[j] = msg[j + i * BYTE];
 			sblock[i].resize(BYTE);
 		}
+	
+		for(int i = 0; i < block_num; i++)
+		{
+			IV = crypto(IV);
 
+			for(int j = 0; j < BYTE; j++)
+			{
+				(sblock[i])[j] = (sblock[i])[j] ^ IV[j];
+				if(sblock[i].length() == j + 1)
+					break;
+			}
+		}
 
+		for(int i = 0; i < block_num; i++)
+				result.append(sblock[i]);
 
 		delete[] sblock;
 
 		return result;
 	}
+
+	string CTR(string msg, string key, bool isEncipher = true)
+	{
+		int block_num = msg.length() / BYTE;
+		string result = "";
+		int i_count = block_num;
+		string s_count;
+		
+		//make string block
+		string* sblock = new string[block_num];
+		if(sblock == nullptr)	//error handling
+			return "error occur";
+	
+		for(int i = 0; i < block_num; i++){
+			for(int j = 0; j < BYTE; j++)	//divide msg to blocks
+				(sblock[i])[j] = msg[j + i * BYTE];
+			sblock[i].resize(BYTE);
+		}
+	
+		for(int i = 0; i < block_num; i++, i_count++)
+		{
+			s_count = to_string(i_count);
+			while(s_count.length() != BYTE)
+				s_count(0, "0");
+
+			for(int j = 0; j < BYTE; j++)
+			{
+				(sblock[i])[j] = (sblock[i])[j] ^ s_count[j];
+				if(sblock[i].length() == j + 1)
+					break;
+			}
+		}
+
+		for(int i = 0; i < block_num; i++)
+				result.append(sblock[i]);
+
+		delete[] sblock;
+
+		return result;
+	}
+
 };
