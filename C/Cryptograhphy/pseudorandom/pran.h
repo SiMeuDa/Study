@@ -16,6 +16,7 @@ public:
 
 //Middle-Squae Method
 	void msqrt(std::vector<int>& arr, int size);
+//Linear Congruential Generator
 	void lcg(std::vector<int>& arr, int size);
 };
 
