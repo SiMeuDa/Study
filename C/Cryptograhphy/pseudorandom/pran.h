@@ -7,8 +7,9 @@
 class prandom{
 private:
 	std::vector<uint32_t> seed;
-	static int count;
+	inline static int count = 0;
 	void setSeed(void);
+	void padding(std::string& str, int& len);
 	bool isCoprime(int x, int y);
 public:
 	prandom() : seed(4){ setSeed(); }
@@ -19,8 +20,6 @@ public:
 //Linear Congruential Generator
 	void lcg(std::vector<int>& arr, int size);
 };
-
-int prandom::count = 0;
 
 void prandom::setSeed(void)
 {	
@@ -43,17 +42,17 @@ bool prandom::isCoprime(int x, int y)
 	return (x == 1);
 }
 
+void prandom::padding(std::string& str, int& len){
+	for(int i = len; i >= 0; i--, len++)
+		str.insert(0, "0");
+	return;
+}
 
 void prandom::msqrt(std::vector<int>& arr, int size)
 {
-	bool error = true;
-	try{//size check
-		if(size <= 0)
-			throw error;
-	}catch(bool error){
-		arr.resize(0);
+	if(size <= 0)	//size check
 		return;
-	}
+
 //make empty string for sqrt
 	std::string str;
 	arr.resize(size);
@@ -64,7 +63,8 @@ void prandom::msqrt(std::vector<int>& arr, int size)
 	for(int i = 0; i < size; i++)
 	{
 		len = str.length();
-
+		if(len < 4)
+			padding(str, len);
 		if(len & 1)	//isOdd
 			start = len / 2 - 1;
 		else	//isEven
@@ -80,7 +80,7 @@ void prandom::msqrt(std::vector<int>& arr, int size)
 		if(arr.at(i) == 0)
 			arr.at(i) = (int)(this->seed.at(count++ % 4));
 	//temp vari for sqrt & to_string
-		temp = pow(arr.at(i), 2);
+		temp = arr.at(i) * arr.at(i);
 	//change to string
 		str = std::to_string(temp);
 	}
@@ -88,20 +88,25 @@ void prandom::msqrt(std::vector<int>& arr, int size)
 }
 
 void prandom::lcg(std::vector<int>& arr, int size)
-{//X(n + 1) = (aX(n) + c) mod m
+{
+	if(size <= 0)	//size check
+		return;
+	arr.resize(size);
+	
+	//X(n + 1) = (aX(n) + c) mod m
 	long long X, a, c, m;
 	X = this->seed.at(count++ % 4);
-	a = pow(4, 10) + 1;
-	m = pow(2, 31) - 1;
+	a = 48271;
+	m = 2147483647;
 	do{
 		c = this->seed.at(count++ % 4);
-	}while((c % 2) && c < m);	//c and m must coprime
+	}while(c % 2);	//c and m must coprime
 
 	for(int i = 0; i < size; i++)
 	{
 		X = (X * a + c) % m;
 
-		arr.at(i) = (int)X;
+		arr.at(i) = static_cast<int>(X);
 	}
 
 	return;
