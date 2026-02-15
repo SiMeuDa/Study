@@ -1,0 +1,166 @@
+#pragma once
+#include "stack"
+#include <cmath>
+#define BUF_SIZE 1024 // 2^10
+
+class Binary{
+private:
+// Stack to hold the binary digits
+    stack s;
+
+// Integer value to be converted to binary
+    int value;
+
+// Binary representation as a string
+    char binary[BUF_SIZE + 1];  // Add 1 for null terminator
+
+// Flag to indicate if the number is negative
+    bool isNegative = false;
+
+// Flag to indicate if the number is a double
+    bool isDouble = false;  
+
+// Index to track the position in the binary representation
+    int index;
+
+    // Function to insert a new value at the beginning of the binary representation
+    friend void insert(Binary& binary, char value){
+        for(int i = BUF_SIZE - 1; i > 0; i--)
+            binary.binary[i] = binary.binary[i - 1];  // Shift right
+        
+        binary.binary[0] = value;  // Insert new value at the beginning
+    }
+
+    // Function to complement the binary representation
+    void complement(){
+        for(int i = 0; (i < BUF_SIZE) && (binary[i] != '\0'); i++)
+        {
+            if(binary[i] == '1')
+                binary[i] = '0';
+            else if(binary[i] == '0')
+                binary[i] = '1';
+        }
+    }
+public:
+    Binary(int value){
+        for(int i = 0; i < BUF_SIZE; i++)
+            binary[i] = '\0';  // Initialize the binary string
+        
+        this->value = value;
+        if(value < 0)
+            isNegative = true;
+
+        value = value < 0 ? -value : value;  // Make value positive for conversion
+
+        int index = 0;
+        
+        while(value != 0)
+        {
+        // Convert the integer to binary
+            if(value & 1 /*If 1 == 1*/)
+                s.push('1');
+            else
+                s.push('0');
+
+            value = value >> 1;
+
+            index++;
+        }
+
+        if(isNegative)
+        {
+        // If the number is negative, we need to fill the binary representation
+
+            for(int i = 0; i < BUF_SIZE - index; i++)
+                binary[i] = '0';  // Fill with leading zeros for negative numbers
+
+            for(int i = BUF_SIZE - index; i < BUF_SIZE; i++)
+                binary[i] = s.pop();  // Pop from stack to fill the rest
+            
+            complement();  // Apply two's complement for negative numbers
+
+            index = BUF_SIZE;  // Set index to BUF_SIZE for negative numbers
+            
+            for(int i = BUF_SIZE - 1; i > 0; i--){
+                if(binary[i] == '0'){
+                    binary[i] = '1';  // Set the last zero to one
+                    break;
+                }
+                else
+                    binary[i] = '0';  // Set ones to zero until we find a zero
+            }
+            
+        }
+        else if(!isNegative)
+        {// If the number is positive, we don't need to fill the binary
+            for(int i = 0; (i < index) && (s.isTop() != top_bottom); i++)
+                binary[i] = s.pop();
+            
+            // Fill the rest with zeros
+            while((index) % 4 != 0){
+                insert(*this, '0');  // Ensure the binary string is a multiple of 4 bits
+                index++;
+            }
+        }
+        
+        this->index = index;
+    }
+
+/*
+    Binary(double value){
+        this->value = (int)value;
+
+
+    }
+*/
+    void print_binary(){
+    // Print the binary representation
+        for(int i = 0; i < BUF_SIZE; i++)
+        {
+            std::cout << binary[i];
+            if((i + 1) % 4 == 0 && binary[i + 1] != '\0')  // Add space every 4 bits
+                std::cout << ' ';
+        }
+    }
+
+    void print_octal(){
+        int value = 0;
+        int octal_index = 0;
+        char octal[BUF_SIZE / 3 + 1];  // Octal representation can be at most 1/3 of binary size
+
+        for(int i = 0; i < index; i += 3)
+        {
+            value = 0;
+            for(int j = 0; j < 3 && (i + j) < index; j++)
+            {
+                value <<= 1;  // Shift left to make space for the next bit
+                if(binary[i + j] == '1')
+                    value |= 1;  // Set the least significant bit if it's '1'
+            }
+            octal[octal_index++] = '0' + value;  // Convert to octal digit
+        }
+        octal[octal_index] = '\0';  // Null-terminate the string
+
+        std::cout << octal;  // Print the octal representation
+    }
+
+    void print_hexa(){
+        char hex_digits[] = "0123456789ABCDEF";
+
+        for(int i = 0; i < index; i += 4)
+        {
+            if(i % 16 == 0 && i != 0)
+                std::cout << ' ';  // Add space every 16 bits for readability
+            int value = 0;
+            for(int j = 0; j < 4 && (i + j) < index; j++)
+            {
+                value <<= 1;  // Shift left to make space for the next bit
+                if(binary[i + j] == '1')
+                    value |= 1;  // Set the least significant bit if it's '1'
+            }
+            std::cout << hex_digits[value];  // Print the corresponding hex digit
+
+
+        }
+    }
+};

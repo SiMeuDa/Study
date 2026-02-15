@@ -1,0 +1,66 @@
+#pragma once
+#include <iostream>
+#include <limits>
+#define MAX 1024 // Maximum size of the stack
+#define top_bottom -1
+class stack{
+private:
+    int top;
+    char data[MAX];
+
+    void Error(const char* msg, bool isExit = true){
+        std::cerr << "[Error]: " << msg << std::endl;
+        if(isExit)
+            exit(1);
+    }
+
+    bool isEmpty(){
+        if(top == top_bottom)
+            return true;
+        else
+            return false;
+    }
+
+    bool isFull(){
+        if(top == MAX - 2)  //For NULL character
+            return true;
+        else
+            return false;
+    }
+public:
+    stack(){
+        this->top = -1;
+        for(int i = 0; i < MAX; i++)
+            data[i] = '\0';
+    }
+
+    int isTop(){ return top; }
+
+    void push(char value){
+        if(isFull()){
+            Error("Stack is Full", false);
+            return;
+        }
+
+        data[++top] = value;
+        data[top + 1] = '\0';
+    }
+
+    char pop(){
+        if(isEmpty()){
+            Error("Stack is Empty", false);
+            return '\0';
+        }
+
+        return data[top--];
+    }
+
+     char peek(){
+        if(isEmpty()){
+            Error("Stack is Empty", false);
+            return '\0';
+        }
+
+        return data[top];
+     }
+};
