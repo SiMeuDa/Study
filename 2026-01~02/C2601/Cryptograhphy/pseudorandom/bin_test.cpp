@@ -18,12 +18,9 @@ int main(int argc, char* argv[])
 		std::cerr << "[Usage]: ./[file_name] [decimal_number]" << std::endl;
 		return 0;
 	}
-/*
-	std::cout << atoi(argv[1]) << std::endl;
-	return 0;
-*/
+
 	binary b(atoi(argv[1]));
-	std::cout << "Result: ";
+	std::cout << "Binary Result: ";
 	std::string result = b.getBinary();
 
 	for(int i = 1; i <= result.length(); i++)
@@ -33,5 +30,8 @@ int main(int argc, char* argv[])
 			std::cout << " | ";
 	}
 	std::cout << std::endl;
+
+	std::cout << "Hexa Result: " << b.getHexa() << std::endl;
+
 	return 0;
 }

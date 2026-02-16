@@ -25,6 +25,7 @@ public:
 //	binary(std::string& bin_str) : str(bin_str) {}
     binary(int num);
 	std::string getBinary(){ return str; }
+	std::string getHexa();
 	friend int getDecimal(const binary& other);
 	friend int getDecimal(const binary& other, std::string bin_str);
     binary operator^(const binary& other);
@@ -92,6 +93,30 @@ void binary::setBinary(int num)
 binary::binary(int num)
 {
     setBinary(num);
+}
+
+std::string binary::getHexa(void)
+{
+	std::string hexa = "0x";
+	int index = 0;
+	const char hearr[16] = {
+		'0', '1', '2' ,'3',
+		'4', '5', '6', '7',
+		'8', '9', 'a', 'b',
+		'c', 'd', 'e', 'f'
+		};
+
+	for(int i = 8; i >= 1 ; i--)
+	{
+		for(int j = 1; j <= 4; j++)
+//코러스/멤버 
+			if(str[4 * i - j] == '1')
+				index += sec_pow[j - 1];
+		hexa.insert(2, 1, hearr[index]);
+		index = 0;
+	}
+
+	return hexa;
 }
 
 int getDecimal(const binary& other)
