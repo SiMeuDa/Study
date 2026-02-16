@@ -22,9 +22,11 @@ private:
 public:
 	binary() {}
     binary(std::string bin_str) : str(bin_str) {}
+//	binary(std::string& bin_str) : str(bin_str) {}
     binary(int num);
 	std::string getBinary(){ return str; }
 	friend int getDecimal(const binary& other);
+	friend int getDecimal(const binary& other, std::string bin_str);
     binary operator^(const binary& other);
     binary operator^(int index); 
     
@@ -41,6 +43,11 @@ void binary::setBinary(int num)
 	    {
 	        if (num >= sec_pow[i]) 
 	        {
+				if(i == len - 1)
+				{
+					str.append("0");
+					continue;
+				}
 	            num -= sec_pow[i];
 	            str.append("1");
 	        }
@@ -57,7 +64,12 @@ void binary::setBinary(int num)
 		{
 			if(num >= sec_pow[i])
 			{
-				num -= sec_pow[i];
+				if(i == len - 1)
+				{
+					str.append("1");
+					continue;
+				}
+	            num -= sec_pow[i];
 				str.append("0");
 			}
 			else
@@ -84,11 +96,23 @@ binary::binary(int num)
 
 int getDecimal(const binary& other)
 {
-	int result = 0;
+	static int result = 0;
+	result = 0;
 
 	for(int i = 0; i < other.len; i++)
 		if(other.str[i] == '1')
-			result += other.sec_pow[other.len - i];
+			result += other.sec_pow[other.len - 1 - i];
+
+	return result;
+}
+
+int getDecimal(const binary& other, std::string bin_str)
+{
+	static int result = 0;
+	result = 0;
+	for(int i = 0; i < other.len; i++)
+		if(bin_str[i] == '1')
+			result += other.sec_pow[other.len - 1 - i];
 	return result;
 }
 
@@ -121,18 +145,19 @@ binary binary::operator^(int index)
     return result;
 }
 
-binary binary::operator<<(int num) {
-    binary result(this->str);
-    
+binary binary::operator<<(int num) {   
     if (num >= len) {
-        result.str = std::string(len, '0');
-        return result;
-    }
+		this->str = std::string(len, '0');
+		return *this;
+	}
+	
+	if(str[0] != str[1])
+		str[1] = str[0];
 
-    result.str.erase(0, num); 
-    result.str.append(num, '0'); 
-
-    return result;
+	this->str.erase(0, num);
+    this->str.append(num, '0'); 
+	
+    return *this;
 }
 
 binary binary::operator>>(int num) {
@@ -146,7 +171,7 @@ binary binary::operator>>(int num) {
     }
 
  
-    result.str.erase(len - num, num); 
+    result.str.erase(len - num, num);
     
     result.str.insert(0, num, signBit);
 

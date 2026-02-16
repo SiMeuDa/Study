@@ -5,6 +5,7 @@
 #include <string>
 #include "binary.h"
 
+
 class prandom : private binary{
 private:
 	std::vector<uint32_t> seed;
@@ -120,33 +121,43 @@ void prandom::lcg(std::vector<int>& arr, int size)
 void prandom::lfsr(std::vector<int>& arr, int size)
 {
 	if(size <= 0)
-		return;
+		return;	//size check
 	arr.resize(size);
-//tap index
+//tap index 31, 21, 1, 0
 	std::vector<int> tindex = {0, 10, 30, 31};
 
+//make binary with seed value
 	binary b(this->seed.at(count++ % 4));
 	
 	std::string bin;
 	int c;
 	for(int j = 0; j < size; j++)
 	{
+		if(j != 0)
+			binary b(bin);
+		else
+			binary b(this->seed[count++ % 4]);
 		c = 0;
+		//take binary string
 		bin = b.getBinary();
 		for(int i = 0; i < 4; i++)
-			if(bin[tindex.at(i)] == '1')
+			if(bin[tindex.at(i)] == '1')	//1 count
 				c++;
-		b << 1;
+		//register shift
+	 	b << 1;
+		//take value after shift
 		bin = b.getBinary();
 
-		if(!(c % 2))	//c is Odd
-			bin[31] = '0';
-		else
+		//xor calculate
+		if(c % 2)	//c is Odd
 			bin[31] = '1';
-	
-		binary b(bin);
-
-		arr.at(j) = getDecimal(b);
+		else
+			bin[31] = '0';
+		//ensure positive value
+		bin[0] = '0';
+		
+		//translate to Decimal
+		arr.at(j) = getDecimal(b, bin);
 	}
 
 	return;

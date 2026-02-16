@@ -1,0 +1,34 @@
+In file included from pran.h:6,
+                 from test.cpp:1:
+binary.h: In member function ‘binary binary::operator^(int)’:
+binary.h:125:28: error: call of overloaded ‘binary(std::string&)’ is ambiguous
+  125 |     binary result(this->str);
+      |                            ^
+binary.h:25:9: note: candidate: ‘binary::binary(std::string&)’
+   25 |         binary(std::string& bin_str) : str(bin_str) {}
+      |         ^~~~~~
+binary.h:24:5: note: candidate: ‘binary::binary(std::string)’
+   24 |     binary(std::string bin_str) : str(bin_str) {}
+      |     ^~~~~~
+binary.h:4:7: note: candidate: ‘binary::binary(const binary&)’
+    4 | class binary {
+      |       ^~~~~~
+binary.h:4:7: note: candidate: ‘binary::binary(binary&&)’
+binary.h: In member function ‘binary binary::operator>>(int)’:
+binary.h:151:28: error: call of overloaded ‘binary(std::string&)’ is ambiguous
+  151 |     binary result(this->str);
+      |                            ^
+binary.h:25:9: note: candidate: ‘binary::binary(std::string&)’
+   25 |         binary(std::string& bin_str) : str(bin_str) {}
+      |         ^~~~~~
+binary.h:24:5: note: candidate: ‘binary::binary(std::string)’
+   24 |     binary(std::string bin_str) : str(bin_str) {}
+      |     ^~~~~~
+binary.h:4:7: note: candidate: ‘binary::binary(const binary&)’
+    4 | class binary {
+      |       ^~~~~~
+binary.h:4:7: note: candidate: ‘binary::binary(binary&&)’
+pran.h: In member function ‘void prandom::lfsr(std::vector<int>&, int)’:
+pran.h:155:18: error: no match for call to ‘(binary) (std::string&)’
+  155 |                 b(bin);
+      |                 ~^~~~~
