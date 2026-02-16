@@ -6,7 +6,7 @@ private:
     std::string str;
 	const int len = 32;
 
-    const int sec_pow[31] = {
+    const int sec_pow[32] = {
         1, 2, 4, 8,
         16, 32, 64, 128,
         256, 512, 1024, 2048,
@@ -14,7 +14,8 @@ private:
         65536, 131072, 262144, 524288,
         1048576, 2097152, 4194304, 8388608,
         16777216, 33554432, 67108864, 134217728,
-        268435456, 536870912, 1073741824
+        268435456, 536870912, 1073741824,
+		2147483647
     };
     void setBinary(int num);
 	
@@ -61,6 +62,17 @@ void binary::setBinary(int num)
 			}
 			else
 				str.append("1");
+		}
+
+		++str[31];
+
+		for(int i = len - 1; i > 0; i--)
+		{
+			if(str[i] == '2')
+			{
+				++str[i - 1];
+				str[i] = '0';
+			}
 		}
     }
 }

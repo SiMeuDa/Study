@@ -1,9 +1,19 @@
 #include <iostream>
 #include "binary.h"
 #include <cstdlib>
+#include <cctype>
+
+bool isstrdigit(char* str)
+{
+	for(int i = 0; str[i] != '\0'; i++)
+		if(!isdigit(str[i]) && str[i] != '-')
+			return false;
+	return true;
+}
+
 int main(int argc, char* argv[])
 {
-	if(argc == 1)
+	if((argc == 1) || !isstrdigit(argv[1]))
 	{
 		std::cerr << "[Usage]: ./[file_name] [decimal_number]" << std::endl;
 		return 0;
