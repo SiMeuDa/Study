@@ -19,6 +19,13 @@ public:
 	void msqrt(std::vector<int>& arr, int size);
 //Linear Congruential Generator
 	void lcg(std::vector<int>& arr, int size);
+//Linear Feedback Shift Register
+// 			==
+//Tausworthe Generator
+	void lfsr(std::vecotr<int>& arr, int size);
+	{
+
+	}
 };
 
 void prandom::setSeed(void)
@@ -96,17 +103,17 @@ void prandom::lcg(std::vector<int>& arr, int size)
 	//X(n + 1) = (aX(n) + c) mod m
 	long long X, a, c, m;
 	X = this->seed.at(count++ % 4);
-	a = 48271;
-	m = 2147483647;
+	a = 1103515245;	//most used constant
+	m = 2147483648;	//most used constant
 	do{
 		c = this->seed.at(count++ % 4);
 	}while(c % 2);	//c and m must coprime
 
 	for(int i = 0; i < size; i++)
-	{
+	{	//main calculate
 		X = (X * a + c) % m;
 
-		arr.at(i) = static_cast<int>(X);
+		arr.at(i) = static_cast<int>(X);	//arr == int vector
 	}
 
 	return;
