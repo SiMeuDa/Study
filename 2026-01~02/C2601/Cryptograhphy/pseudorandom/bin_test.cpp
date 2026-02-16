@@ -1,0 +1,27 @@
+#include <iostream>
+#include "binary.h"
+#include <cstdlib>
+int main(int argc, char* argv[])
+{
+	if(argc == 1)
+	{
+		std::cerr << "[Usage]: ./[file_name] [decimal_number]" << std::endl;
+		return 0;
+	}
+/*
+	std::cout << atoi(argv[1]) << std::endl;
+	return 0;
+*/
+	binary b(atoi(argv[1]));
+	std::cout << "Result: ";
+	std::string result = b.getBinary();
+
+	for(int i = 1; i <= result.length(); i++)
+	{
+		std::cout << result[i - 1];
+		if(!(i % 4))
+			std::cout << " | ";
+	}
+	std::cout << std::endl;
+	return 0;
+}

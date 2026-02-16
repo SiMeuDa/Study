@@ -54,6 +54,9 @@ int main(void)
 	case 1:
 		p.lcg(arr, size);
 		break;
+	case 2:
+		p.lfsr(arr, size);
+		break;
 	default:
 		std::cout << "[System]: On Working" << std::endl;
 		return 0;

@@ -3,8 +3,9 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include "binary.h"
 
-class prandom{
+class prandom : private binary{
 private:
 	std::vector<uint32_t> seed;
 	inline static int count = 0;
@@ -22,10 +23,7 @@ public:
 //Linear Feedback Shift Register
 // 			==
 //Tausworthe Generator
-	void lfsr(std::vecotr<int>& arr, int size);
-	{
-
-	}
+	void lfsr(std::vector<int>& arr, int size);
 };
 
 void prandom::setSeed(void)
@@ -63,7 +61,7 @@ void prandom::msqrt(std::vector<int>& arr, int size)
 //make empty string for sqrt
 	std::string str;
 	arr.resize(size);
-//set seed.
+//take seed.
 	str = std::to_string((int)(this->seed.at(((count++) % 4))));
 	int len, start, temp;
 
@@ -114,6 +112,41 @@ void prandom::lcg(std::vector<int>& arr, int size)
 		X = (X * a + c) % m;
 
 		arr.at(i) = static_cast<int>(X);	//arr == int vector
+	}
+
+	return;
+}
+
+void prandom::lfsr(std::vector<int>& arr, int size)
+{
+	if(size <= 0)
+		return;
+	arr.resize(size);
+//tap index
+	std::vector<int> tindex = {0, 10, 30, 31};
+
+	binary b(this->seed.at(count++ % 4));
+	
+	std::string bin;
+	int c;
+	for(int j = 0; j < size; j++)
+	{
+		c = 0;
+		bin = b.getBinary();
+		for(int i = 0; i < 4; i++)
+			if(bin[tindex.at(i)] == '1')
+				c++;
+		b << 1;
+		bin = b.getBinary();
+
+		if(!(c % 2))	//c is Odd
+			bin[31] = '0';
+		else
+			bin[31] = '1';
+	
+		binary b(bin);
+
+		arr.at(j) = getDecimal(b);
 	}
 
 	return;
