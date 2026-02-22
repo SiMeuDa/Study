@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 
 class binary{
 private:
@@ -19,49 +20,119 @@ private:
 	};
 	//binary string
 	std::string bin;
+	//check whether each index over 1 (check 2 or 3)
+	void checkBinary(bool);
 public:
+	//binary & const binary& operator
 	binary operator!(void);
+	binary operator^(const binary& other);
+	binary operator<<(int);
+	binary operator>>(int);
 	binary operator++(int);
 	binary operator--(int);
-private:
+	binary operator+(const binary& other);
+	binary operator-(const binary& other);
+private://set Binary
 	//make integer to binary string
-	void setBinary(int num);
+	void setBinary(int);
 
 public:
-	binary() {}
-	binary(int num);				//make binary
-	binary(const binary& other);	//copy construtor
+	//constructor
+	binary(void) {}
+	binary(int);				//make binary
+	binary(const binary&);			//copy construtor
+	
+	//function
 	std::string getBinary(void);	//return bin
-	friend int todecimal(const binary& other);
-	friend std::string tohexa(const binary& other);
+	friend int to_decimal(const binary&);
+	friend std::string to_hexa(const binary&);
+
+	//operator with integer parameter
+	binary operator^(int);
+	binary operator+(int);
+	binary operator-(int);
 };
+
+void binary::checkBinary(bool isPlus)
+{
+	if(isPlus)
+	{
+		for(int i = len - 1; i >= 1; i--)
+		{
+			if(bin[i] == '2' or bin[i] == '3')
+			{
+				bin[i] -= 2;
+				++bin[i - 1];
+			}
+
+		}
+	}
+	else
+	{
+		for(int i = len - 1; i >= 1; i--)
+		{
+			if(bin[i] == '/' or bin[i] == '.')
+			{
+				--bin[i - 1];
+				bin[i] += 2;
+			}
+		}
+	}
+
+	return;
+}
 
 binary binary::operator!(void)
 {
+	binary result = *this;
 	for(int i = 0; i < len; i++)
 	{
 		if(this->bin[i] == '0')
-			this->bin[i] = '1';
+			result.bin[i] = '1';
 		else if(this->bin[i] == '1')
-			this->bin[i] = '0';
+			result.bin[i] = '0';
 	}
 
-	return *this;
+	return result;
+}
+
+binary binary::operator^(const binary& other)
+{
+	binary result(0);
+	for(int i = 0; i < len - 1; i++)
+	{
+		if(this->bin[i] == other.bin[i])
+			result.bin[i] = '0';
+		else
+			result.bin[i] = '1';
+	}
+	return result;
+}
+
+binary binary::operator<<(int num)
+{
+	char signBit = this->bin[0];
+	binary result = *this;
+	result.bin.erase(num);
+	result.bin.append(num, '0');
+	result.bin[0] = signBit;
+
+	return result;
+}
+
+binary binary::operator>>(int num)
+{
+	char signBit = this->bin[0];
+	binary result = *this;
+
+	return result;
 }
 
 binary binary::operator++(int)
 {
-	for(int i = len - 1; i >= 1; i--)
-	{
-		++this->bin[i];
-		if(this->bin[i] == '2' || this->bin[i] == '3')
-		{
-			++this->bin[i - 1];
-			this->bin[i] -= 2;
-		}
-	}
-	if(this->bin[0] == '2')
-		--(this->bin[0]);
+	binary result = *this;
+	++this->bin[len - 1];
+	checkBinary(true);
 
 	return *this;
 }
@@ -79,6 +150,34 @@ binary binary::operator--(int)
 		this->bin[i] = '1';
 
 	return *this;
+}
+
+binary binary::operator+(const binary& other)
+{
+	binary result;
+	result.bin = this->bin;
+
+	for(int i = len - 1; i >= 0; i--)
+		if(other.bin[i] == '1')
+			++(result.bin[i]);
+
+	result.checkBinary(true);
+
+	return result;
+}
+
+binary binary::operator-(const binary& other)
+{
+	binary result;
+	result.bin = this->bin;
+
+	for(int i = len - 1; i >= 0; i--)
+		if(other.bin[i] == '1')
+			--(result.bin[i]);
+	
+	result.checkBinary(false);
+
+	return result;
 }
 
 void binary::setBinary(int num)
@@ -127,7 +226,7 @@ binary::binary(const binary& other)
 
 std::string binary::getBinary(void){	return bin;    }
 
-int todecimal(const binary& other)
+int to_decimal(const binary& other)
 {
 //if don't divide case, it cause overflow
 	static int result;
@@ -156,7 +255,7 @@ int todecimal(const binary& other)
 	return result;
 }
 
-std::string tohexa(const binary& other)
+std::string to_hexa(const binary& other)
 {
 	std::string result = "0x";
 	const char hexa[16] = {
@@ -167,13 +266,31 @@ std::string tohexa(const binary& other)
 	};
 	int index = 0;
 
-	for(int i = other.len / 4; i >= 0; i--)
+	for(int i = other.len / 4; i >= 1; i--)
 	{
-		for(int j = 4; j >= 0; j--)
-			if(other.bin[i + j - 1] == '1')
-				index += other.two_pow[j - 1];
-		result.insert(3, hexa[index]);
+		for(int j = 0; j < 4; j++)
+			if(other.bin[i * 4 - j - 1] == '1')
+				index += other.two_pow[j];
+		result.insert(2, 1, hexa[index]);
+		index = 0;	
 	}
+
+	return result;
+}
+
+binary binary::operator+(int num)
+{
+	binary result(num);
+	result = result + *this;
+
+	return result;
+}
+
+binary binary::operator-(int num)
+{
+	binary result(num);
+	
+	result = *this - result;
 
 	return result;
 }

@@ -1,5 +1,5 @@
 #include "fix.h"
-#include <iostream>
+//#include <iostream>
 #include <cstdlib>
 using namespace std;
 
@@ -27,16 +27,18 @@ int main(int argc, char* argv[])
 	}
 	binary b(atoi(argv[1]));
 
-	cout << "Input: " << todecimal(b) << endl;
-
+	cout << "Input: " << to_decimal(b) << endl;
 	cout << "Binary:" << endl;
 	printBinary(b);
 	
-	!b;
-	b--;
+	b = !b;
+	b++;
 	cout << "Negative:" << endl;
 	printBinary(b);
 
+	b--;
+	b = !b;
+	cout << "Hexa: " << to_hexa(b) << endl;
 
 	return 0;
 }
