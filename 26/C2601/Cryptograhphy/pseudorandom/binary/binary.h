@@ -20,9 +20,11 @@ private:
 	};
 	//binary string
 	std::string bin;
-
+//check whether bool or something else
+//when use in plus = true, in minus = false
 	void checkBinary(bool);
 public:
+//operator
 	binary operator! (void);
 	binary operator^ (const binary& other);
 	binary operator| (const binary& other);
@@ -34,23 +36,22 @@ public:
 	binary operator+ (const binary& other);
 	binary operator- (const binary& other);
 	binary operator* (const binary& other);
-private:
-	void setBinary(int);
-public:
+//constructor
 	binary() {}
 	binary(int);
 	binary(const binary& other);
-	
+//return binary string
 	std::string getBinary(void);
-	
+//change binary to decimal
 	friend int to_decimal(const binary& other);
+//change binary to hexa
 	friend std::string to_hexa(const binary& other);
 };
 
 void binary::checkBinary(bool isPlus)
 {
 	if(isPlus)
-	{
+	{//plus
 		for(int i = len - 1; i >= 1; i--)
 		{
 			if(bin[i] == '2' or bin[i] == '3')
@@ -61,7 +62,7 @@ void binary::checkBinary(bool isPlus)
 		}
 	}
 	else
-	{
+	{//minus
 		for(int i = len - 1; i >= 1; i--)
 		{
 			if(bin[i] == '/' or bin[i] == '.')
@@ -270,6 +271,22 @@ int to_decimal(const binary& other)
 		result++;
 		result = -result;
 	}
+
+	return result;
+}
+
+std::string to_hexa(const binary& other)
+{
+	std::string result = "0x";
+
+	char hex[16] = {
+		'0', '1', '2', '3',
+		'4', '5', '6', '7',
+		'8', '9', 'a', 'b',
+		'c', 'd', 'e', 'f'
+		};
+
+	for(int i = 0;;);
 
 	return result;
 }
