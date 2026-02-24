@@ -1,12 +1,12 @@
-#include "fix.h"
-//#include <iostream>
+#include "binary.h"
+#include <iostream>
 #include <cstdlib>
 using namespace std;
 
 inline void printBinary(binary b)
 {
 	string result = b.getBinary();
-
+	std::cout << '\t';
 	for(int i = 0; i < 32; i++)
 	{
 		cout << result[i];
@@ -20,25 +20,28 @@ inline void printBinary(binary b)
 
 int main(int argc, char* argv[])
 {
-	if(argc == 1)
+	if(argc < 3)
 	{
-		cerr << "[Error]: [file_name] [Decimal_Number]" << endl;
+		cerr << "[Error]: [file_name] [First_Decimal_Number] [Second_Decimal_Number]" << endl;
 		return -1;
 	}
-	binary b(atoi(argv[1]));
+	binary a(atoi(argv[1]));
+	binary b(atoi(argv[2]));
 
-	cout << "Input: " << to_decimal(b) << endl;
-	cout << "Binary:" << endl;
-	printBinary(b);
+
+	cout << "Binary 1 : ";
+	printBinary(a);
 	
-	b = !b;
-	b++;
-	cout << "Negative:" << endl;
+	cout << "Binary 2 : ";
 	printBinary(b);
+	binary c = a + b;
+	cout << "Binary 1 + 2 : ";
+	printBinary(c);
 
-	b--;
-	b = !b;
-	cout << "Hexa: " << to_hexa(b) << endl;
+	c = a * b;
+	cout << "Binary 1 * 2: ";
+	printBinary(c);
+//	cout << "Hexa: " << to_hexa(b) << endl;
 
 	return 0;
 }

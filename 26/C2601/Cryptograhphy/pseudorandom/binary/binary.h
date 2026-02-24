@@ -1,261 +1,275 @@
 #pragma once
+#include <iostream>
 #include <string>
 
-class binary {
+class binary{
 private:
-    std::string str;
-	const int len = 32;
+//sharing constant
+	//binary's len, default: 32bit
+	static constexpr int len = 32;
+	static constexpr double two_pow[len] = {
+	//2^(index)
+		1, 2, 4, 8,
+		16, 32, 64, 128,
+		256, 512, 1024, 2048,
+		4096, 8192, 16384, 32768,
+		65536, 131072, 262144, 524288,
+		1048576, 2097152, 4194304, 8388608,
+		16777216, 33554432, 67108864, 134217728,
+		268435456, 536870912, 1073741824, 2147483648	
+	};
+	//binary string
+	std::string bin;
 
-    const int sec_pow[32] = {
-        1, 2, 4, 8,
-        16, 32, 64, 128,
-        256, 512, 1024, 2048,
-        4096, 8192, 16384, 32768,
-        65536, 131072, 262144, 524288,
-        1048576, 2097152, 4194304, 8388608,
-        16777216, 33554432, 67108864, 134217728,
-        268435456, 536870912, 1073741824,
-		2147483647
-    };
-    void setBinary(int num);
-	
+	void checkBinary(bool);
+public:
+	binary operator! (void);
+	binary operator^ (const binary& other);
+	binary operator| (const binary& other);
+	binary operator& (const binary& other);
+	binary operator<< (int);
+	binary operator>> (int);
+	binary operator++ (int);
+	binary operator-- (int);
+	binary operator+ (const binary& other);
+	binary operator- (const binary& other);
+	binary operator* (const binary& other);
+private:
+	void setBinary(int);
 public:
 	binary() {}
-    binary(std::string bin_str) : str(bin_str) {}
-    binary(int num);
-	std::string getBinary(){ return str; }
-	friend std::string getHexa(const binary& other);
-	friend int getDecimal(const binary& other);
-	friend int getDecimal(const binary& other, std::string bin_str);
-    binary operator^(const binary& other);
-    binary operator^(int index); 
-    binary operator+(const binary& other);
-	binary operator+(int num);
-	binary operator-(const binary& other);
-	binary operator-(int num);
-    binary operator<<(int num);
-    binary operator>>(int num);
+	binary(int);
+	binary(const binary& other);
+	
+	std::string getBinary(void);
+	
+	friend int to_decimal(const binary& other);
+	friend std::string to_hexa(const binary& other);
 };
 
-void binary::setBinary(int num)
+void binary::checkBinary(bool isPlus)
 {
-    str = "";
-	if(num >= 0)
+	if(isPlus)
 	{
-	    for (int i = len - 1; i >= 0; i--)
-	    {
-	        if (num >= sec_pow[i]) 
-	        {
-				if(i == len - 1)
-				{
-					str.append("0");
-					continue;
-				}
-	            num -= sec_pow[i];
-	            str.append("1");
-	        }
-	        else
-	        {
-	            str.append("0");
-	        }
+		for(int i = len - 1; i >= 1; i--)
+		{
+			if(bin[i] == '2' or bin[i] == '3')
+			{
+				bin[i] -= 2;
+				++bin[i - 1];
+			}
 		}
 	}
 	else
 	{
-		num = -num;
-		for(int i = len - 1; i >= 0; i--)
+		for(int i = len - 1; i >= 1; i--)
 		{
-			if(num >= sec_pow[i])
+			if(bin[i] == '/' or bin[i] == '.')
 			{
-				if(i == len - 1)
-				{
-					str.append("1");
-					continue;
-				}
-	            num -= sec_pow[i];
-				str.append("0");
-			}
-			else
-				str.append("1");
-		}
-
-		++str[31];
-
-		for(int i = len - 1; i > 0; i--)
-		{
-			if(str[i] == '2')
-			{
-				++str[i - 1];
-				str[i] = '0';
+				--bin[i - 1];
+				bin[i] += 2;
 			}
 		}
-    }
-}
-
-binary::binary(int num)
-{
-    setBinary(num);
-}
-
-std::string getHexa(const binary& other)
-{
-	std::string hexa = "0x";
-	int index = 0;
-	const char hearr[16] = {
-		'0', '1', '2' ,'3',
-		'4', '5', '6', '7',
-		'8', '9', 'a', 'b',
-		'c', 'd', 'e', 'f'
-		};
-
-	for(int i = 8; i >= 1 ; i--)
-	{
-		for(int j = 1; j <= 4; j++) 
-			if(other.str[4 * i - j] == '1')
-				index += other.sec_pow[j - 1];
-		hexa.insert(2, 1, hearr[index]);
-		index = 0;
 	}
 
-	return hexa;
+	return;
 }
 
-int getDecimal(const binary& other)
+binary binary::operator!(void)
 {
-	static int result = 0;
-	result = 0;
-	int signBit = 1;
-	if(other.str[0] == '0')
-		signBit = 0;
+	binary result;
+	result.bin = std::string(len, '0');
 
-	for(int i = 0; i < other.len; i++)
+	for(int i = 0; i < len; i++)
 	{
-		if(other.str[i] == '1')
-		{
-			result += other.sec_pow[other.len - 1 - i];
-			if(result <= -other.sec_pow[other.len - 2])
-				return -1;
-		}
+		if(this->bin[i] == '1')
+			result.bin[i] = '0';
+		else if(result.bin[i] == '0')
+			result.bin[i] = '1';
 	}
-	return result + signBit;
-}
 
-int getDecimal(const binary& other, std::string bin_str)
-{
-	static int result = 0;
-	result = 0;
-	int signBit = 1;
-	if(other.str[0] == '0')
-		signBit = 0;
-
-	for(int i = 0; i < other.len; i++)
-		if(bin_str[i] == '1')
-			result += other.sec_pow[other.len - 1 - i];
-	return result + signBit;
+	return result;
 }
 
 binary binary::operator^(const binary& other)
 {
-    binary result(0); 
+	binary result;
+	result.bin = std::string(len, '0');
 
-    for (int i = 0; i < len; i++)
-    {
-        char c1 = this->str[i];
-        char c2 = other.str[i];
+	for(int i = 0; i < len; i++)
+	{
+		if(this->bin[i] == other.bin[i])
+			result.bin[i] = '0';
+		else
+			result.bin[i] = '1';
+	}
 
-        if (c1 == c2) 
-            result.str[i] = '0';
-        else          
-            result.str[i] = '1';
-    }
-    return result;
+	return result;
 }
 
-binary binary::operator^(int index)
+binary binary::operator|(const binary& other)
 {
-    binary result(this->str);
-    if (index >= 0 && index < len) {
-        if (result.str[index] == '0')
-            result.str[index] = '1';
-        else
-            result.str[index] = '0';
-    }
-    return result;
+	binary result;
+	result.bin = std::string(len, '0');
+
+	for(int i = 0; i < len; i++)
+	{
+		if((this->bin[i] == '1') or (other.bin[i] == '1'))
+			result.bin[i] = '1';
+		else
+			result.bin[i] = '0';
+	}
+
+	return result;
+}
+
+binary binary::operator&(const binary& other)
+{
+	binary result;
+	result.bin = std::string(len, '0');
+
+	for(int i = 0; i < len; i++)
+	{
+		if((this->bin[i] == '1') and (other.bin[i] == '1'))
+			result.bin[i] = '1';
+		else
+			result.bin[i] = '0';
+	}
+
+	return result;
+
+}
+
+binary binary::operator<<(int num)
+{
+	binary result;
+	result.bin = this->bin;
+	char signBit = this->bin[0];
+
+	result.bin.erase(0, num);
+	result.bin[0] = signBit;
+	result.bin.append(num, '0');
+
+	return result;
+}
+
+binary binary::operator>>(int num)
+{
+	binary result;
+	result.bin = this->bin;
+	char signBit = this->bin[0];
+
+	result.bin.erase(len - 1 - num, num);
+	result.bin.insert(0, num, '0');
+	result.bin[0] = signBit;
+
+	return result;
+}
+
+binary binary::operator++(int)
+{
+	++(this->bin[len - 1]);
+	checkBinary(true);
+
+	return *this;
 }
 
 binary binary::operator+(const binary& other)
 {
-	for(int i = len - 1; i >= 1; i--)
+	binary result;
+	result.bin = std::string(len, '0');
+	bool carry = false;
+	for(int i = this->len - 1; i >= 0; i--)
 	{
-		this->str[i] += (int)(other.str[i] - '0');
-		if(this->str[i] == '2' or this->str[i] == '3')
+	    bool A = (bool)(this->bin[i] - '0');
+	    bool B = (bool)(other.bin[i] - '0');
+
+	    //Sum
+	    if(A ^ B ^ carry)
+			result.bin[i] = '1';
+		else
+			result.bin[i] = '0';
+		//Carry
+	    carry = (A & B) | (carry & (A ^ B));
+	}
+
+	return result;
+}
+
+binary binary::operator-(const binary& other){	return (*this) + other;		}
+
+binary binary::operator*(const binary& other)
+{
+	binary result(0);
+	
+	for(int i = 0; i < len; i++)
+	{
+		if(other.bin[i] == '1')
 		{
-			str[i - 1]++; 
-			str[i] -= 2;
+			binary temp = (*this << len - 1 - i);
+
+			result = result + temp;
 		}
 	}
 
-	if(this->str[0] == '2')
-		this->str[0] = '0';
-			
-	return *this;
+	return result;
 }
 
-binary binary::operator+(int num)
+binary::binary(int num)
 {
-//make binary object
-	binary n(num);
-//calling opeartor + overload
-	*this + n;
-
-	return *this;
-}
-
-binary binary::operator-(const binary& other)
-{
-	*this + other;
-
-	return *this;
-}
-
-binary binary::operator-(int num)
-{
-	*this + num;
-	
-	return *this;
-}
-
-binary binary::operator<<(int num) {   
-    if (num >= len) {
-		this->str = std::string(len, '0');
-		return *this;
-	}
-
-	for(int i = 0; i < num; i++)
+	char input;
+	if(num >= 0)
 	{
-		if(str[i] != str[i + 1])
-			str[i + 1] = str[i];
-		this->str.erase(0, 1);
+		bin = std::string(len, '0');
+		input = '1';
+	}
+	else
+	{
+		bin = std::string(len, '1');
+		input = '0';
+		num = -num;
 	}
 
-    this->str.append(num, '0'); //add 0 to end
-	
-    return *this;
+	for(int i = 0; i < len; i++)
+	{
+		if(num >= two_pow[len - 1 - i])
+		{
+			num -= two_pow[len - 1 - i];
+			bin[i] = input;
+		}
+	}
+
+	//input is negative
+	if(input == '0')
+		*this = (*this)++;
 }
 
-binary binary::operator>>(int num) {
- 
-    char signBit = this->str[0]; 
-    
-    if (num >= len) {
-        this->str = std::string(len, '0');
-        return *this;
-    }
+binary::binary(const binary& other){	this->bin = other.bin;	}
 
-    this->str.erase(len - num, num);
-	//insert(index, count, char)
-    this->str.insert(0, num - 1, '0');	
-	this->str.insert(0, 1, signBit);
+std::string binary::getBinary(void){	return bin;		}
 
-    return *this;
+int to_decimal(const binary& other)
+{
+	int result = 0;
+	bool isPlus = true;
+	if(other.bin[0] == '1')
+		isPlus = false;
+
+	for(int i = 1; i < other.len; i++)
+	{
+		if(isPlus)
+			if(other.bin[i] == '1')
+				result += other.two_pow[other.len - 1 - i];
+		else
+			if(other.bin[i] == '0')
+				result += other.two_pow[other.len - 1 - i];
+	}
+
+	if(!isPlus)
+	{
+		result++;
+		result = -result;
+	}
+
+	return result;
 }
