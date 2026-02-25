@@ -285,8 +285,17 @@ std::string to_hexa(const binary& other)
 		'8', '9', 'a', 'b',
 		'c', 'd', 'e', 'f'
 		};
-
-	for(int i = 0;;);
+	int count = 0;
+	for(int i = other.len - 1; i >= 0; i--)
+	{
+		if(other.bin[i] == '1')
+			count += other.two_pow[4 - ((i + 1) % 4)];
+		if(((i + 1) % 4 == 0) && i != other.len - 1)
+		{
+			result.insert(2, 1, hex[count]);
+			count = 0;
+		}
+	}
 
 	return result;
 }

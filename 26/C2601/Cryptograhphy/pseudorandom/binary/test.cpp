@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	c = a * b;
 	cout << "Binary 1 * 2: ";
 	printBinary(c);
-//	cout << "Hexa: " << to_hexa(b) << endl;
+	cout << "Hexa: " << to_hexa(c) << endl;
 
 	return 0;
 }
