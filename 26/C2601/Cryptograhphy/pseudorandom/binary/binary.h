@@ -36,14 +36,18 @@ public:
 	binary operator+ (const binary& other);
 	binary operator- (const binary& other);
 	binary operator* (const binary& other);
+
 //constructor
 	binary() {}
 	binary(int);
 	binary(const binary& other);
+
 //return binary string
 	std::string getBinary(void);
+
 //change binary to decimal
 	friend int to_decimal(const binary& other);
+
 //change binary to hexa
 	friend std::string to_hexa(const binary& other);
 };
@@ -180,6 +184,8 @@ binary binary::operator+(const binary& other)
 	binary result;
 	result.bin = std::string(len, '0');
 	bool carry = false;
+
+	//full adder logic
 	for(int i = this->len - 1; i >= 0; i--)
 	{
 	    bool A = (bool)(this->bin[i] - '0');
@@ -202,7 +208,7 @@ binary binary::operator-(const binary& other){	return (*this) + other;		}
 binary binary::operator*(const binary& other)
 {
 	binary result(0);
-	
+	//Shift and Add logic	
 	for(int i = 0; i < len; i++)
 	{
 		if(other.bin[i] == '1')
@@ -251,6 +257,7 @@ std::string binary::getBinary(void){	return bin;		}
 
 int to_decimal(const binary& other)
 {
+//change decimal to binary
 	int result = 0;
 	bool isPlus = true;
 	if(other.bin[0] == '1')
@@ -277,6 +284,7 @@ int to_decimal(const binary& other)
 
 std::string to_hexa(const binary& other)
 {
+//change binary to hexa
 	std::string result = "0x";
 
 	char hex[16] = {
@@ -285,16 +293,14 @@ std::string to_hexa(const binary& other)
 		'8', '9', 'a', 'b',
 		'c', 'd', 'e', 'f'
 		};
-	int count = 0;
-	for(int i = other.len - 1; i >= 0; i--)
+	int index = 0;
+	for(int i = (other.len) / 4; i >= 1; i--)
 	{
-		if(other.bin[i] == '1')
-			count += other.two_pow[4 - ((i + 1) % 4)];
-		if(((i + 1) % 4 == 0) && i != other.len - 1)
-		{
-			result.insert(2, 1, hex[count]);
-			count = 0;
-		}
+		for(int j = 0; j < 4; j++)
+			if(other.bin[i * 4 - 1 - j] == '1')
+				index += other.two_pow[j];
+		result.insert(2, 1, hex[index]);
+		index = 0;
 	}
 
 	return result;
