@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <setbit>
 #include "DES.h"
 
 class cipher : private DES{
@@ -11,26 +12,17 @@ public:
 	~cihper() {}
 };
 
-void parity(uint64_t& key)
+void setParity(uint64_t& key)
 {
-	volatile uint8_t compare;
-	volatile uint64_t temp;
+	for (int i = 0; i < 8; i++)
+    {
+    	uint8_t group = (key >> (i * 8)) & 0xFF;
 
-	for(int i = 0; i < 8; i++)
-	{
-		temp = key;
-	
-		//select 8bit for shift
-		compare = (temp >> i) & 0xFF;
-		
-		//if compare is even, change parity
-		if(compare & 0x02)
-			key += (0x00000001) << i;
-	}
+ 	    int ones = std::bitset<8>(group).count();
 
-//erase key info
-	temp = 0;
-	compare = 0;
+        uint8_t parity = (ones % 2 == 0) ? 1 : 0;
 
-	return;
+        key &= ~(1ULL << (i * 8));
+        key |=  ((uint64_t)parity << (i * 8));
+    }
 }
