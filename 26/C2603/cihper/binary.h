@@ -8,10 +8,15 @@ class binary{
 public:
 	std::vector<char> bin;
 
-	binary(T value)
+	binary(T value, size_t len = 0)
 	{
-		int repeat = sizeof(T) * 8;
-		for(int i = 0; i < repeat; i++)
+		size_t repeat;
+		if(len == 0)
+			repeat = sizeof(T) * 8;
+		else
+			repeat = len;
+
+		for(size_t i = 0; i < repeat; i++)
 		{
 			if(value & 1)
 				bin.insert(bin.begin(), '1');
@@ -42,7 +47,7 @@ public:
 		for(int i = 0; i < count; i++)
 		{
 			temp = result.bin.back();
-			for(auto it = result.bin.end() - 1; it >= result.bin.begin(); it--)
+			for(auto it = result.bin.end() - 1; it >= result.bin.begin() + 1; it--)
 				*it = *(it - 1);
 			result.bin[0] = temp;
 		}
