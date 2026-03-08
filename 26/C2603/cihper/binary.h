@@ -5,9 +5,9 @@
 
 template <typename T>
 class binary{
-private:
-	std::vector<char> bin;
 public:
+	std::vector<char> bin;
+
 	binary(T value)
 	{
 		int repeat = sizeof(T) * 8;
@@ -24,8 +24,16 @@ public:
 	binary(const binary& other){ this->bin = other.bin;	}
 	
 	~binary(){	bin.clear();	}
+	
+	T to_integer(void)
+	{
+		T result = 0;
+		for(int i = bin.size() - 1; i >= 0; i--)
+			if(bin[i] == '1')
+				result += (((T)1) << (bin.size() - 1 - i));
+		return result;
+	}
 
-	std::vector<char> getStr(void){	return bin;	}
 //circular right shift
 	binary operator >>(int count)
 	{
@@ -42,5 +50,4 @@ public:
 		return result;
 	}
 
-	char operator[](size_t index){	return bin.at(index);	}
 };
