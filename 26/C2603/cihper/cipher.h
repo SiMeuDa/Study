@@ -4,7 +4,7 @@
 #include <setbit>
 #include "DES.h"
 
-class cipher : private DES{
+class cipher : private mode{
 private:
 	void parity(uint64_t&);
 public:
