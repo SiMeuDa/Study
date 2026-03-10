@@ -57,20 +57,21 @@ public:
 	
 	binary operator <<(int count)
 	{
-		binary result = *this;
-		char temp;
-		int index;
-		for(int i = 0; i < count; i++)
-		{
-			temp = result.bin.at(0);
-			for(auto it = result.end() - 1; it >= result.begin() + 1; it--)
-				*(it - 1) = *it;
-			index = result.bin.size();
-			result.bin[--index] = temp;
-		}
+	   binary result = *this;
+ 	   char temp;
+ 	   for(int i = 0; i < count; i++)
+ 	   {
+ 	       temp = result.bin.front();
 
-		return result;
+        	for(auto it = result.bin.begin(); it < result.bin.end() - 1; it++)
+        	    *it = *(it + 1);
+        
+        result.bin.back() = temp;
+    	}
+
+    	return result;
 	}
+	
 
 	
 	int resize(size_t size)

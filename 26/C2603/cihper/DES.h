@@ -4,7 +4,8 @@
 #include <string>
 #include "binary.h"
 #include "feistel.h"
-#define TEST 0x00
+//#define TEST 0x00
+
 class DES : private feistel{
 private:
 	std::vector<int64_t> subKey;
