@@ -88,7 +88,7 @@ void DES::keySchedule(uint64_t key)
 		14, 17, 11 , 24, 1,  5,  3, 28,
 		15,  6, 21, 10, 23, 19, 12,  4,
 		26,  8, 16,  7, 27, 20, 13,  2,
-		31, 52, 31, 37, 47, 55, 30, 40,
+		41, 52, 31, 37, 47, 55, 30, 40,
 		51, 45, 33, 48, 44, 49, 39, 56,
 		34, 53, 46, 42, 50, 36, 29, 32
 		};
@@ -100,8 +100,8 @@ void DES::keySchedule(uint64_t key)
 	//PC - 1
 	for(int i = 0; i < 28; i++)
 	{
-		binC.bin[i + 4] = temp.bin[pc1_Ctable[i] - 1];
-		binD.bin[i + 4] = temp.bin[pc1_Dtable[i] - 1];
+		binC.bin[i] = temp.bin[pc1_Ctable[i] - 1];
+		binD.bin[i] = temp.bin[pc1_Dtable[i] - 1];
 	}
 
 	temp.resize(56);
@@ -109,8 +109,8 @@ void DES::keySchedule(uint64_t key)
 	for(int i = 0; i < 16; i++)
 	{
 		//Left Circular Shift
-		binC = binC >> round_table[i];
-		binD = binD >> round_table[i];
+		binC = binC << round_table[i];
+		binD = binD << round_table[i];
 
 		for(int j = 0; j < 28; j++)
 		{	//sum C, D to one string
