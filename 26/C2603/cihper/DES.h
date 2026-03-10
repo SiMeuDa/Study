@@ -4,7 +4,7 @@
 #include <string>
 #include "binary.h"
 #include "feistel.h"
-
+#define TEST 0x00
 class DES : private feistel{
 private:
 	std::vector<int64_t> subKey;
@@ -16,17 +16,21 @@ private:
 //not for cipher logic (was for hardware)
 //Final Permutation
 	uint64_t FP(uint64_t);
+#ifndef TEST
 protected:
 	//Make Sub Key vector
 	DES() { subKey.resize(16);	}
-//	~DES();
-public:
+	~DES();
+#endif
+#ifdef TEST
+public:	
 	DES(int64_t key){	
 		subKey.resize(16);
 		keySchedule(key);
 	};	
 	~DES() {};
 	std::vector<int64_t> getSubKey(void) { return subKey;	}
+#endif
 };
 
 
