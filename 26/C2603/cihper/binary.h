@@ -54,5 +54,10 @@ public:
 
 		return result;
 	}
-
+	
+	int resize(size_t size)
+	{
+		bin.resize(size);
+		return size;
+	}
 };

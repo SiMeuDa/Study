@@ -13,13 +13,13 @@ protected:
 	feistel() {};
 	~feistel(){};
 
-	uint64_t round(uint64_t, uint64_t);
+	uint64_t round(uint64_t, std::vector<uint64_t>);
 };
 
 uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
 {
-	uint32_t L, R, temp;
-	uint64_t result
+	uint32_t L = 0, R = 0, temp;
+	uint64_t result = 0;
 	
 	//divide L, R for each 32bit
 	L = static_cast<uint32_t>((msg >> 32) & 0xFFFFFFFF);
@@ -29,7 +29,7 @@ uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
 	for(int i = 0; i < repeat; i++)
 	{
 		temp = R;
-		R = F(R, key[i]);
+//		R = F(R, key[i]);
 		R = L ^ R;
 		L = temp;
 	}
