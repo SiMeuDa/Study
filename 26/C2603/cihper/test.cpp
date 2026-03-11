@@ -21,8 +21,8 @@ int main(void)
 	DES des;
 
 	m = des.cipher(m, key);
-	vector<uint64_t> temp = des.getSubKey();
-	cout << "subKey: " << bitset<64>(temp.at(0)) << endl;
+//	vector<uint64_t> temp = des.getSubKey();
+	cout << "Output: " << m << endl;
 
 	return 0;
 }
