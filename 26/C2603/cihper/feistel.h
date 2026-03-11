@@ -89,6 +89,12 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
         { 2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11}
     }
 };
+	int P_BOX[32] =  {
+		16,  7, 20, 21, 29, 12, 28, 17,
+		 1, 15, 23, 26,  5, 18, 31, 10,
+		 2,  8, 24, 14, 32, 27,  3,  9,
+		19, 13, 30,  6, 22, 11,  4, 25
+		};
 
 	binary r(R, 32);
 	binary bit48((uint64_t)0, 48);
@@ -100,7 +106,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	//xor extend msg with 
 	eresult = eresult ^ subkey;
 	
-	binary temp(eresult, 48);
+	binary t1(eresult, 48);
 	bit48 = temp;
 	int8_t row, col, res;
 	binary bit2(0, 2);
@@ -109,23 +115,30 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	for(int i = 0; i < 8; i++)
 	{	
 		//b1
-		bit2.bin[0] = bit48.bin[8 * i];
+		bit2.bin[0] = bit48.bin[6 * i];
 		//b6
-		bit2.bin[1] = bit48.bin[8 * i + 5];
+		bit2.bin[1] = bit48.bin[6 * i + 5];
 		//set column
 		col = bit2.to_integer();
 
 		//b2, b3, b4, b5
 		for(int j = 1; j <= 4; j++)
-			bit4.bin[j - 1] = bit48.bin[8 * i + j];
+			bit4.bin[j - 1] = bit48.bin[6 * i + j];
 		//set row
 		row = bit4.to_integer();
+		//set S box
+		res = S_BOX[i][col][row];
 
-		res = S_BOX[i][row][col];
-
-		R += (static_cast<uint32_t>(res) << 4 * (8 - i));
+		R |= (static_cast<uint32_t>(res) << 4 * (8 - i));
 	}
-	
+
+	binary t2(R, 32);
+	binary result(R, 32);
+	//set P box
+	for(int i = 0; i < 32; i++)
+		result.bin[i] = t2.bin[P_BOX[i] - 1];
+	R = result.to_integer();
+
 	return R;
 }
 
@@ -147,11 +160,12 @@ uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
 		L = temp;
 	}
 	//sum for uint64_t
-	result = static_cast<uint64_t>(R) << 32;
-	result += static_cast<uint64_t>(L);
+	result = static_cast<uint64_t>(L) << 32;
+	result |= static_cast<uint64_t>(R);
 
 	//Memory info Erase
-	*(volatile uint64_t*)&key = 0;
+	for(auto& k : key)
+		*(volatile uint64_t*)&k = 0;
 	*(volatile uint32_t*)&R = 0;
 	*(volatile uint32_t*)&L = 0;
 	*(volatile uint32_t*)&temp = 0;
