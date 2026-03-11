@@ -4,11 +4,10 @@
 #include <string>
 #include "binary.h"
 #include "feistel.h"
-//#define TEST 0x00
 
 class DES : private feistel{
 private:
-	std::vector<int64_t> subKey;
+	std::vector<uint64_t> subKey;
 //not for cipher logic (was for hardware)
 //Initial Permutation
 	uint64_t IP(uint64_t);
@@ -17,21 +16,24 @@ private:
 //not for cipher logic (was for hardware)
 //Final Permutation
 	uint64_t FP(uint64_t);
+/*
 #ifndef TEST
 protected:
 	//Make Sub Key vector
 	DES() { subKey.resize(16);	}
+	uint64_t cipher(uint64_t, uint64_t);
 	~DES();
 #endif
-#ifdef TEST
+#ifdef TEST*/
 public:	
-	DES(int64_t key){	
+	DES(/*int64_t key*/){	
 		subKey.resize(16);
-		keySchedule(key);
+	//	keySchedule(key);
 	};	
 	~DES() {};
-	std::vector<int64_t> getSubKey(void) { return subKey;	}
-#endif
+	uint64_t cipher(uint64_t, uint64_t);
+	std::vector<uint64_t> getSubKey(void) { return subKey;	}
+//#endif
 };
 
 
@@ -151,4 +153,18 @@ uint64_t DES::FP(uint64_t msg)
 	result = change.to_integer();
 
 	return result;
+}
+
+uint64_t DES::cipher(uint64_t msg, uint64_t key)
+{
+	//Initailze Permutation
+	msg = this->IP(msg);
+	//Scheduling Key to sub key
+	this->keySchedule(key);	
+	//feistel structure
+	msg = round(msg, this->subKey);
+	//Final Permutation
+	msg = this->FP(msg);
+
+	return msg;
 }

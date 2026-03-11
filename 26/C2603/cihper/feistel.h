@@ -16,6 +16,24 @@ protected:
 	uint64_t round(uint64_t, std::vector<uint64_t>);
 };
 
+//diffusion confusion
+uint32_t feistel::F(uint32_t R, uint64_t subkey)
+{
+	//32bit -> 48bit
+	//each column has 6 -> prevent duplicate
+	int ebox_table[48] = {
+		32,  1,  2,  3,  4,  5,
+		 4,  5,  6,  7,  8,  9,
+		 8,  9, 10, 11, 12, 13,
+		12, 13, 14, 15, 16, 17,
+		16, 17, 18, 19, 20, 21,
+		20, 21, 22, 23, 24, 25,
+		24, 25, 26, 27, 28, 29,
+		28, 29, 30, 31, 32,  1
+	};
+	return R;
+}
+
 uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
 {
 	uint32_t L = 0, R = 0, temp;
@@ -29,7 +47,7 @@ uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
 	for(int i = 0; i < repeat; i++)
 	{
 		temp = R;
-//		R = F(R, key[i]);
+		R = F(R, key[i]);
 		R = L ^ R;
 		L = temp;
 	}

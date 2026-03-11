@@ -1,26 +1,28 @@
 #include <iostream>
-#include "binary.h"
-#include "DES.h"
 #include <cstdint>
 #include <bitset>
+#include <string>
+#include "DES.h"
 using namespace std;
 
 int main(void)
 {
-	uint64_t value;
-	cout << "input: ";
-	cin >> value;
+	uint64_t key, m;
+	string msg;
+	cout << "msg: ";
+	cin >> msg;
+	cout << "key: ";
+	cin >> key;
+	int len = msg.length();
 
-	DES des(value);
+	for(int i = 0; i != len; i++)
+		m += ((static_cast<uint64_t>(msg[i] & 0xFF)) << len - 2 * i - 2);
+	
+	DES des;
 
-	cout << "sub Key: ";
-	vector<int64_t> ret = des.getSubKey();
-	cout << endl;
-	for(int i = 0;i < 16; i++)
-	{
-		cout << "[" << i << "]: " << bitset<64>(ret.at(i)) << endl;
-	}
-
+	m = des.cipher(m, key);
+	vector<uint64_t> temp = des.getSubKey();
+	cout << "subKey: " << bitset<64>(temp.at(0)) << endl;
 
 	return 0;
 }
