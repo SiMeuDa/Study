@@ -107,7 +107,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	eresult = eresult ^ subkey;
 	
 	binary t1(eresult, 48);
-	bit48 = temp;
+	bit48 = t1;
 	int8_t row, col, res;
 	binary bit2(0, 2);
 	binary bit4(0, 4);
