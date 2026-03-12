@@ -9,8 +9,7 @@ class DES : private feistel{
 private:
 	std::vector<uint64_t> subKey;
 //Left Circular Shift
-template <typename T>
-	T LCS(T, size_t);
+	uint32_t LCS(uint32_t, size_t);
 
 //not for cipher logic (was for hardware)
 //Initial Permutation
@@ -35,18 +34,18 @@ public:
 	uint64_t cipher(uint64_t, uint64_t);
 };
 
-T DES::LCS(T value, size_t count)
+uint32_t DES::LCS(uint32_t value, size_t count)
 {
-	T one;
+	uint32_t one;
 	for(int i = 0; i < count; i++)
 	{
-		one = 1;
+		one = 1U;
 		//take last value
 		one = one & value;
 
 		value = value >> 1;
 
-		value |= one << sizeof(T) * 8 ;
+		value |= one << 28 ;
 	}
 
 	return value;
@@ -117,8 +116,6 @@ void DES::keySchedule(uint64_t key)
 		C |= ((key >> (pc1_Ctable[i] - 1)) & 1U) << (28 - i);
 		D |= ((key >> (pc1_Dtable[i] - 1)) & 1U) << (28 - i);
 	}
-
-	temp.resize(56);
 	
 	for(int i = 0; i < 16; i++)
 	{
@@ -131,10 +128,12 @@ void DES::keySchedule(uint64_t key)
 
 		//PC - 2
 		for(int j = 0; j < 48; j++)
-			result = ((temp >> (pc2_table[j] - 1)) & 1ULL) << (48 - i);
+			result |= ((temp >> (pc2_table[j] - 1)) & 1ULL) << (48 - i);
 
 		//save sub key
 		this->subKey[i] = result;
+		
+		result = 0;
 	}
 }
 
