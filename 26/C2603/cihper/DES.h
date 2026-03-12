@@ -8,6 +8,10 @@
 class DES : private feistel{
 private:
 	std::vector<uint64_t> subKey;
+//Left Circular Shift
+template <typename T>
+	T LCS(T, size_t);
+
 //not for cipher logic (was for hardware)
 //Initial Permutation
 	uint64_t IP(uint64_t);
@@ -31,6 +35,23 @@ public:
 	uint64_t cipher(uint64_t, uint64_t);
 };
 
+T DES::LCS(T value, size_t count)
+{
+	T one;
+	for(int i = 0; i < count; i++)
+	{
+		one = 1;
+		//take last value
+		one = one & value;
+
+		value = value >> 1;
+
+		value |= one << sizeof(T) * 8 ;
+	}
+
+	return value;
+}
+
 
 uint64_t DES::IP(uint64_t msg)
 {
@@ -45,14 +66,10 @@ uint64_t DES::IP(uint64_t msg)
 		61, 53, 45, 37, 29, 21, 13, 5,
 		63, 55, 47, 39, 31, 23, 15, 7
 		};
-	binary origin(msg);
-	binary change(msg);
-	uint64_t result;
+	uint64_t result = 0;
 
 	for(int i = 0; i < 64; i++)
-		change.bin[i] = origin.bin[table[i] - 1];
-
-	result = change.to_integer();
+		result |= ((msg  >> (table[i] - 1)) & 1ULL) << (64 - i);
 
 	return result;
 }
@@ -90,16 +107,15 @@ void DES::keySchedule(uint64_t key)
 		51, 45, 33, 48, 44, 49, 39, 56,
 		34, 53, 46, 42, 50, 36, 29, 32
 		};
-	binary result(0, 48);
-	binary temp(key, 64);
-	binary binC(0, 28);
-	binary binD(0, 28);
+	uint64_t result = 0;
+	uint64_t temp = 0;
+	uint32_t C = 0, D = 0;
 
 	//PC - 1
 	for(int i = 0; i < 28; i++)
 	{
-		binC.bin[i] = temp.bin[pc1_Ctable[i] - 1];
-		binD.bin[i] = temp.bin[pc1_Dtable[i] - 1];
+		C |= ((key >> (pc1_Ctable[i] - 1)) & 1U) << (28 - i);
+		D |= ((key >> (pc1_Dtable[i] - 1)) & 1U) << (28 - i);
 	}
 
 	temp.resize(56);
@@ -107,21 +123,18 @@ void DES::keySchedule(uint64_t key)
 	for(int i = 0; i < 16; i++)
 	{
 		//Left Circular Shift
-		binC = binC << round_table[i];
-		binD = binD << round_table[i];
+		C = LCS(C, round_table[i]);
+		D = LCS(D, round_table[i]);
 
-		for(int j = 0; j < 28; j++)
-		{	//sum C, D to one string
-			temp.bin[j] = binC.bin[j];
-			temp.bin[j + 28] = binD.bin[j];
-		}
+		temp = static_cast<uint64_t>(D);
+		temp |= (static_cast<uint64_t>(C)) << 28;
 
 		//PC - 2
 		for(int j = 0; j < 48; j++)
-			result.bin[j] = temp.bin[pc2_table[j] - 1];
+			result = ((temp >> (pc2_table[j] - 1)) & 1ULL) << (48 - i);
 
 		//save sub key
-		this->subKey[i] = result.to_integer();
+		this->subKey[i] = result;
 	}
 }
 
@@ -138,14 +151,12 @@ uint64_t DES::FP(uint64_t msg)
 		34, 2, 42, 10, 50, 18, 58, 26,
 		33, 1, 41,  9, 49, 17, 57, 25
 		};
-	binary origin(msg);
-	binary change(msg);
-	uint64_t result;
+				
+	uint64_t result = 0;
 
 	for(int i = 0; i < 64; i++)
-		change.bin[i] = origin.bin[table[i] - 1];
+		result |= ((msg  >> (table[i] - 1)) & 1ULL) << (64 - i);
 
-	result = change.to_integer();
 
 	return result;
 }

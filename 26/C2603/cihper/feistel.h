@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-#include "binary.h"
+
 
 class feistel{
 private:
@@ -13,7 +13,7 @@ protected:
 	feistel() {};
 	~feistel(){};
 
-	uint64_t round(uint64_t, std::vector<uint64_t>);
+	uint64_t round(uint64_t, std::vector<uint64_t>&);
 };
 
 //diffusion confusion
@@ -106,7 +106,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	eboxRes = eboxRes ^ subkey;
 	
 	uint32_t sboxRes = 0;
-	int8_t row, col, res;
+	uint8_t row, col, res;
 	
 	for(int i = 0; i < 8; i++)
 	{
@@ -136,8 +136,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	return pboxRes;
 }
 
-uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
-
+uint64_t feistel::round(uint64_t msg, std::vector<uint64_t>& key)
 {
 	uint32_t L = 0, R = 0, temp;
 	uint64_t result = 0;
@@ -155,8 +154,8 @@ uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
 		L = temp;
 	}
 	//sum for uint64_t
-	result = static_cast<uint64_t>(L) << 32;
-	result |= static_cast<uint64_t>(R);
+	result = static_cast<uint64_t>(R) << 32;
+	result |= static_cast<uint64_t>(L);
 
 	//Memory info Erase
 	for(auto& k : key)
