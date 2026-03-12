@@ -16,13 +16,20 @@ const std::vector<std::string> name = {
 int main(void)
 {
 	prandom p;
-	int size, select;
+	int size, select, max;
 
 	std::vector<int> arr;
 	std::cout << "size of vector: ";
 	if(!(std::cin >> size))
 	{
 		std::cerr << "[Error]: Invaild Input" << std::endl;
+		return -1;
+	}
+
+	std::cout << "Max num: ";
+	if(!(std::cin >> size))
+	{
+		std::cerr << "[Error]: Invalid Input" << std::endl;
 		return -1;
 	}
 	
@@ -64,7 +71,7 @@ int main(void)
 
 
 	for(int i = 0; i < size; i++)
-		std::cout << arr.at(i) << " | ";
+		std::cout << arr.at(i) % max << " | ";
 	std::cout << std::endl;
 
 	return 0;
