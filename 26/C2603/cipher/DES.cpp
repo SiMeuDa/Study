@@ -2,21 +2,16 @@
 
 uint32_t DES::LCS(uint32_t value, size_t count)
 {
-	uint32_t one;
-	for(int i = 0; i < count; i++)
+	for(size_t i = 0; i < count; i++)
 	{
-		one = 1U;
-		//take last value
-		one = one & value;
-
-		value = value >> 1;
-
-		value |= one << 28 ;
+		uint32_t msb = (value >> 27) & 1U;
+		
+		value = (value << 1) & 0xFFFFFFFU;
+		
+		value |= msb;
 	}
-
 	return value;
 }
-
 
 uint64_t DES::IP(uint64_t msg)
 {
@@ -34,7 +29,7 @@ uint64_t DES::IP(uint64_t msg)
 	uint64_t result = 0;
 
 	for(int i = 0; i < 64; i++)
-		result |= ((msg  >> (table[i] - 1)) & 1ULL) << (63 - i);
+		result |= ((msg  >> (64 - table[i])) & 1ULL) << (63 - i);
 
 	return result;
 }
@@ -79,8 +74,8 @@ void DES::keySchedule(uint64_t key)
 	//PC - 1
 	for(int i = 0; i < 28; i++)
 	{
-		C |= ((key >> (pc1_Ctable[i] - 1)) & 1U) << (27 - i);
-		D |= ((key >> (pc1_Dtable[i] - 1)) & 1U) << (27 - i);
+		C |= ((key >> (64 - pc1_Ctable[i])) & 1U) << (27 - i);
+		D |= ((key >> (64 - pc1_Dtable[i])) & 1U) << (27 - i);
 	}
 	
 	for(int i = 0; i < 16; i++)
@@ -94,7 +89,7 @@ void DES::keySchedule(uint64_t key)
 
 		//PC - 2
 		for(int j = 0; j < 48; j++)
-			result |= ((temp >> (pc2_table[j] - 1)) & 1ULL) << (47 - i);
+			result |= ((temp >> (56 - pc2_table[j])) & 1ULL) << (47 - j);
 
 		//save sub key
 		this->subKey[i] = result;

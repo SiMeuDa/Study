@@ -142,8 +142,6 @@ uint64_t feistel::round(uint64_t msg, std::vector<uint64_t>& key)
 	result |= static_cast<uint64_t>(L);
 
 	//Memory info Erase
-	for(auto& k : key)
-		*(volatile uint64_t*)&k = 0;
 	*(volatile uint32_t*)&R = 0;
 	*(volatile uint32_t*)&L = 0;
 	*(volatile uint32_t*)&temp = 0;
