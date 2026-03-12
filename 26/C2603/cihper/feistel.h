@@ -100,12 +100,12 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	
 	//extend to 48 bit
 	for(int i = 0; i < 48; i++)	// << 15 + ebox_table[i] - i
-		eboxRes |= ((R & 1ULL << (32 - ebox_table[i])) << (15 + ebox_table[i] - i));
+		eboxRes |= ((uint64_t)((R >> (32 - ebox_table[i])) & 1) << (47 - i));
 
 	//xor extend msg with 
 	eboxRes = eboxRes ^ subkey;
 	
-	uint32_t sboxRes;
+	uint32_t sboxRes = 0;
 	int8_t row, col, res;
 	
 	for(int i = 0; i < 8; i++)
@@ -114,7 +114,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 		int b[2] = {	6 * (7 - i) + 5, 6 * (7 - i)	};
 		//set row
 		//row is 2bit -> b1b6
-		row = ((eboxRes & (1ULL << b[0])) >> (b[0] - 1)) + ((eboxRes & 1ULL << b[1]) >> b[1]);
+		row = ((eboxRes >> b[0]) & 1) << 1 | ((eboxRes >> b[1]) & 1);
 
 		//set column
 		//column is 4bit -> b2b3b4b5
@@ -123,7 +123,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 		//set S box
 		res = S_BOX[i][row][col];
 
-		sboxRes |= (static_cast<uint32_t>(res) << 4 * (7 - i));
+		sboxRes |= (static_cast<uint32_t>(res) << (4 * (7 - i)));
 	}
 
 	uint32_t pboxRes = 0;
