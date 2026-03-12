@@ -96,22 +96,16 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 		19, 13, 30,  6, 22, 11,  4, 25
 		};
 
-	binary r(R, 32);
-	R = 0;
-	binary bit48((uint64_t)0, 48);
-	//extend to 48 bit
-	for(int i = 0; i < 48; i++)
-		bit48.bin[i] = r.bin[ebox_table[i] - 1];
-
-	uint64_t eresult = static_cast<uint64_t>(bit48.to_integer());
-	//xor extend msg with 
-	eresult = eresult ^ subkey;
+	uint64_t eboxRes = 0;
 	
-	binary t1(eresult, 48);
-	bit48 = t1;
+	//extend to 48 bit
+	for(int i = 0; i < 48; i++)	// << 15 + ebox_table[i] - i
+		eboxRes |= ((R & 1ULL << (32 - ebox_table[i])) << (15 + ebox_table[i] - i));
+
+	//xor extend msg with 
+	eboxRes = eboxRes ^ subkey;
+	
 	int8_t row, col, res;
-	binary bit2(0, 2);
-	binary bit4(0, 4);
 	
 	for(int i = 0; i < 8; i++)
 	{
@@ -119,18 +113,18 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 		row = 0;	col = 0;
 
 		//bit array
-		uint64_t b[6] = {
+		int b[6] = {
 			6 * (7 - i) + 5, 6 * (7 - i) + 4 , 
 			6 * (7 - i) + 3, 6 * (7 - i) + 2 , 
 			6 * (7 - i) + 1, 6 * (7 - i)
 		};
 		//set row
 		//row is 2bit -> b1b6
-		row = ((eresult & (1ULL << b[0])) >> (b[0] - 1)) + ((eresult & 1ULL << b[5]) >> b[5]);
+		row = ((eboxRes & (1ULL << b[0])) >> (b[0] - 1)) + ((eboxRes & 1ULL << b[5]) >> b[5]);
 
 		//set col
 		for(int j = 0; j < 4; j++)
-			col |= ((eresult & (1ULL << b[j + 1]) >> (b[j + 1] - (3 - j));
+			col |= (eboxRes & (1ULL << b[j + 1])) >> (b[j + 1] - (3 - j));
 
 		//set S box
 		res = S_BOX[i][row][col];
@@ -138,17 +132,18 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 		R |= (static_cast<uint32_t>(res) << 4 * (7 - i));
 	}
 
-	binary t2(R, 32);
-	binary result(R, 32);
+	res = 0;
+	
+
 	//set P box
 	for(int i = 0; i < 32; i++)
-		result.bin[i] = t2.bin[P_BOX[i] - 1];
-	R = result.to_integer();
+		res |= (R & (1ULL << 32 - P_BOX[i])) << (P_BOX[i] - i);
 
-	return R;
+	return res;
 }
 
 uint64_t feistel::round(uint64_t msg, std::vector<uint64_t> key)
+
 {
 	uint32_t L = 0, R = 0, temp;
 	uint64_t result = 0;
