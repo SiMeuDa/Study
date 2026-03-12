@@ -134,3 +134,25 @@ uint64_t DES::cipher(uint64_t msg, uint64_t key)
 
 	return msg;
 }
+
+uint64_t DES::decipher(uint64_t msg, uint64_t key)
+{
+	
+	//Scheduling Key to sub Key
+	this->keySchedule(key);
+	//Initailze Permutation
+	msg = this->IP(msg);
+
+	std::vector<uint64_t> DesubKey;
+	DesubKey.resize(16);
+	for(int i = 0; i < 16; i++)
+		DesubKey.at(i) = subKey.at(15 - i);
+	
+	//feistel structure
+	msg = round(msg, DesubKey);
+
+	//Final Permutation
+	msg = this->FP(msg);
+
+	return msg;
+}
