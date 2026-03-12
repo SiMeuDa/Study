@@ -115,7 +115,7 @@ uint64_t DES::FP(uint64_t msg)
 	uint64_t result = 0;
 
 	for(int i = 0; i < 64; i++)
-		result |= ((msg  >> (table[i] - 1)) & 1ULL) << (63 - i);
+		result |= ((msg  >> (64 - table[i])) & 1ULL) << (63 - i);
 
 
 	return result;
