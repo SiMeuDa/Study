@@ -17,20 +17,18 @@ private:
 //Final Permutation
 	uint64_t FP(uint64_t);
 
-
+/*
 protected:
 	//Make Sub Key vector
 	DES() { subKey.resize(16);	}
 	uint64_t cipher(uint64_t, uint64_t);
 	~DES();
-/*
+*/
 //Test Case for using directly in cpp file
 public:	
-	DES(int64_t key){	subKey.resize(16);	}
+	DES(){	subKey.resize(16);	}
 	~DES() {}
 	uint64_t cipher(uint64_t, uint64_t);
-	std::vector<uint64_t> getSubKey(void) { return subKey;	}
-*/
 };
 
 

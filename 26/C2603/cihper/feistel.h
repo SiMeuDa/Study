@@ -97,6 +97,7 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 		};
 
 	binary r(R, 32);
+	R = 0;
 	binary bit48((uint64_t)0, 48);
 	//extend to 48 bit
 	for(int i = 0; i < 48; i++)
@@ -113,23 +114,28 @@ uint32_t feistel::F(uint32_t R, uint64_t subkey)
 	binary bit4(0, 4);
 	
 	for(int i = 0; i < 8; i++)
-	{	
-		//b1
-		bit2.bin[0] = bit48.bin[6 * i];
-		//b6
-		bit2.bin[1] = bit48.bin[6 * i + 5];
-		//set column
-		col = bit2.to_integer();
+	{
+		//initialize row, column value
+		row = 0;	col = 0;
 
-		//b2, b3, b4, b5
-		for(int j = 1; j <= 4; j++)
-			bit4.bin[j - 1] = bit48.bin[6 * i + j];
+		//bit array
+		uint64_t b[6] = {
+			6 * (7 - i) + 5, 6 * (7 - i) + 4 , 
+			6 * (7 - i) + 3, 6 * (7 - i) + 2 , 
+			6 * (7 - i) + 1, 6 * (7 - i)
+		};
 		//set row
-		row = bit4.to_integer();
-		//set S box
-		res = S_BOX[i][col][row];
+		//row is 2bit -> b1b6
+		row = ((eresult & (1ULL << b[0])) >> (b[0] - 1)) + ((eresult & 1ULL << b[5]) >> b[5]);
 
-		R |= (static_cast<uint32_t>(res) << 4 * (8 - i));
+		//set col
+		for(int j = 0; j < 4; j++)
+			col |= ((eresult & (1ULL << b[j + 1]) >> (b[j + 1] - (3 - j));
+
+		//set S box
+		res = S_BOX[i][row][col];
+
+		R |= (static_cast<uint32_t>(res) << 4 * (7 - i));
 	}
 
 	binary t2(R, 32);
