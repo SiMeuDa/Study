@@ -14,26 +14,11 @@ std::string mode::padding(std::string msg)
 }
 
 std::vector<uint64_t> mode::unpadding(std::vector<uint64_t> msg)
-{
-	std::string str = std::string(64, '0');
-	char finding[8];
-	size_t size = msg.size();
+{	
+	//take padding value == repeat count
+	uint8_t value = (msg[msg.size() - 1]) & 0xFF;
 
-	//copy integer string
-	for(int i = 0; i < 64; i++)
-		str[i] = 1ULL & (msg[size - 1] >> (63 - i));
-
-	for(int i = 0; i < 8; i++)
-		finding[i] = str[56 + i];
-
-	size_t index = str.find(finding);
-	if(index == std::string::npos)
-		return msg;
-
-	index = 64 - index;
-
-	msg[size - 1] = (msg[size - 1] >> index) << index;
-	
+	msg[msg.size() - 1] = (msg[msg.size() - 1] >> (8 * value)) << (8 * value);
 
 	return msg;
 }
@@ -62,14 +47,19 @@ std::vector<uint64_t> mode::to_integer(std::string msg)
 std::string mode::from_integer(std::vector<uint64_t> vec)
 {
 	std::string result;
+	
 	size_t size = vec.size();
+
 	//first do unpadding
 	vec = unpadding(vec);
+
+	result.reserve(block_len * size);
+
 	for(size_t i = 0; i < size; i++)
 	{
 		for(size_t j = 0; j < block_len; j++)
 		{
-			uint8_t temp = result[i] >> (block_len * (block_len - j));
+			uint8_t temp = (vec[i] >> (block_len * (block_len - j - 1)) ) & 0xFF;
 			result.push_back(static_cast<char>(temp));
 		}
 	}
@@ -77,12 +67,11 @@ std::string mode::from_integer(std::vector<uint64_t> vec)
 	return result;
 }
 
-std::string mode::run(void)
+std::string mode::run(std::string test)
 {
-	std::string msg = "1234";
-	std::vector<uint64_t> temp = to_integer(msg);
+	std::vector<uint64_t> temp = to_integer(test);
 
-	return from_integer(temp);
+	return (from_integer(temp));
 }
 
 

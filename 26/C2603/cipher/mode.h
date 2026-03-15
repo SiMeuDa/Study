@@ -34,6 +34,6 @@ public:
 	//Electric CodeBook mode
 	std::vector<uint64_t> ECB(std::string, uint64_t);
 	std::string ECB(std::vector<uint64_t>, uint64_t);
+	std::string run(std::string);
 
-	std::string run(void);
 };
