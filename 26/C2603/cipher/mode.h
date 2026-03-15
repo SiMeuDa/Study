@@ -2,12 +2,19 @@
 #include "DES/DES.h"
 #include <cstdint>
 #include <vector>
+#include <string>
 
 class mode : protected DES{
 private:
-	constexpr int block_len = 8;
+	constexpr static int block_len = 8;
+	std::vector<uint64_t> mstr;
 
-	uint64_t to_char(char*);
+	//do padding
+	std::string padding(std::string);
+
+	//change msg to integer msg(vector)
+	std::vector<uint64_t> to_integer(std::string);
+
 /*
 protected:
 	mode()  {};
@@ -17,7 +24,8 @@ public:
 	mode()	{};
 	~mode() {};
 	//Electric CodeBook mode
-	std::vector<uint64_t> ECB(char*, uint64_t);
+	std::vector<uint64_t> ECB(std::string, uint64_t);
 
 	int run(void);
+	uint64_t run(std::string);
 };
