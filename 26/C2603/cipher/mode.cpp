@@ -60,7 +60,8 @@ std::string mode::from_integer(std::vector<uint64_t> vec)
 		for(size_t j = 0; j < block_len; j++)
 		{
 			uint8_t temp = (vec[i] >> (block_len * (block_len - j - 1)) ) & 0xFF;
-			result.push_back(static_cast<char>(temp));
+			if(temp != 0)
+				result.push_back(static_cast<char>(temp));
 		}
 	}
 
@@ -134,7 +135,7 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
     if (total_blocks == 0) 
 		return " ";
 
-	result.reserve(total_blocks);
+	result.resize(total_blocks, 0);
 
 	//check hardware's thread count
     unsigned int hw_threads = std::thread::hardware_concurrency();
@@ -150,8 +151,8 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
     size_t remainder = total_blocks % num_threads; 
 
     size_t current_start = 0;
-
-    for (int i = 0; i < num_threads; ++i) 
+    
+	for (int i = 0; i < num_threads; ++i) 
     {
         size_t current_chunk = chunk_size + (i < remainder ? 1 : 0);
         size_t start = current_start;

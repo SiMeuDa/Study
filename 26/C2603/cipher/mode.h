@@ -9,8 +9,8 @@
 class mode : protected DES{
 private:
 	constexpr static int block_len = 8;
-	std::vector<uint64_t> mstr;
 
+	//padding: PKCS#7 Standard
 	//do padding
 	std::string padding(std::string);
 	//do unpadding
