@@ -1,12 +1,14 @@
 #include "mode.h"
 
 std::string mode::padding(std::string msg)
-{
+{	
+	//copy msg
 	std::string result = msg;
+	//take padding number(PKCS#7 Standard)
 	int padding_num = block_len - (result.length() % block_len);
-	
+	//do padding(PKCS#7 Standard)
 	for(int i = 0; i < padding_num; i++)
-		result.append(static_cast<char>(padding_num + '0'), 1);
+		result.push_back(static_cast<char>(padding_num));
 
 	return result;
 }
@@ -19,36 +21,37 @@ std::vector<uint64_t> mode::to_integer(std::string msg)
 	std::vector<uint64_t> result;
 	//for using repeatence
 	int block_count = msg.length() / block_len;
-	//resize vector
-	result.resize(block_count);
+	//resize & initalize vector
+	result.resize(block_count, 0);
 	//save string each block
+	//casting to uint64_t(unless msg casted to 32bit)
+	//shift 8 * (8 - j - 1)
 	for(int i = 0; i < block_count; i++)
 		for(int j = 0; j < block_len; j++)
-			result.at(i) |= (msg[block_count * i + j] << ((sizeof(uint64_t) / sizeof(char)) * (block_len - j - 1)));
+			result.at(i) |= (static_cast<uint64_t>(static_cast<unsigned char>(msg[block_len * i + j])) << ((sizeof(uint64_t) / sizeof(char)) * (block_len - j - 1)));
 
 	return result;
 }
 
-int mode::run(void)
+std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
 {
-	uint64_t msg = 1234;
-	uint64_t output;
-	uint64_t key = 1234;
+	//change msg to integer vector
+	std::vector<uint64_t> imsg = to_integer(msg.c_str());
+	
+	std::thread* t = new std::thread[imsg.size()];
+	if(t == nullptr)
+	{
+		imsg.erase();
+		return imsg;
+	}
 
-	output = cipher(msg, key);
+	for(int i = 0; i < imsg.size(); i++)
+		t[i] = std::thread(cipher(imsg.at(i), key));
 
-	//decryption test
-	if(msg == decipher(output, key))
-		return 1;
-	else
-		return -1;
-}
+	for(int i = 0; i < imsg.size(); i++)
+		t[i].join();
 
-uint64_t mode::run(std::string msg)
-{
-	std::vector<uint64_t> result;
-
-	result = to_integer(msg);
-
-	return result.at(0);
+	delete[] t;
+	
+	return imsg;
 }

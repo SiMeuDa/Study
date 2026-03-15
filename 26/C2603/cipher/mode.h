@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <thread>
 
 class mode : protected DES{
 private:
@@ -19,13 +20,13 @@ private:
 protected:
 	mode()  {};
 	~mode() {};
+
+	//Electric CodeBook mode
+	std::vector<uint64_t> ECB(std::string, uint64_t);
 */
 public:
 	mode()	{};
 	~mode() {};
 	//Electric CodeBook mode
 	std::vector<uint64_t> ECB(std::string, uint64_t);
-
-	int run(void);
-	uint64_t run(std::string);
 };
