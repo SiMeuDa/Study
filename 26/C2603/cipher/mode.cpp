@@ -13,10 +13,36 @@ std::string mode::padding(std::string msg)
 	return result;
 }
 
+std::vector<uint64_t> mode::unpadding(std::vector<uint64_t> msg)
+{
+	std::string str = std::string(64, '0');
+	char finding[8];
+	size_t size = msg.size();
+
+	//copy integer string
+	for(int i = 0; i < 64; i++)
+		str[i] = 1ULL & (msg[size - 1] >> (63 - i));
+
+	for(int i = 0; i < 8; i++)
+		finding[i] = str[56 + i];
+
+	size_t index = str.find(finding);
+	if(index == std::string::npos)
+		return msg;
+
+	index = 64 - index;
+
+	msg[size - 1] = (msg[size - 1] >> index) << index;
+	
+
+	return msg;
+}
+
 std::vector<uint64_t> mode::to_integer(std::string msg)
 {
 	//first do padding
 	msg = padding(msg);
+	
 	//save char to integer result
 	std::vector<uint64_t> result;
 	//for using repeatence
@@ -33,25 +59,129 @@ std::vector<uint64_t> mode::to_integer(std::string msg)
 	return result;
 }
 
-std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
+std::string mode::from_integer(std::vector<uint64_t> vec)
 {
-	//change msg to integer vector
-	std::vector<uint64_t> imsg = to_integer(msg.c_str());
-	
-	std::thread* t = new std::thread[imsg.size()];
-	if(t == nullptr)
+	std::string result;
+	size_t size = vec.size();
+	//first do unpadding
+	vec = unpadding(vec);
+	for(size_t i = 0; i < size; i++)
 	{
-		imsg.erase();
-		return imsg;
+		for(size_t j = 0; j < block_len; j++)
+		{
+			uint8_t temp = result[i] >> (block_len * (block_len - j));
+			result.push_back(static_cast<char>(temp));
+		}
 	}
 
-	for(int i = 0; i < imsg.size(); i++)
-		t[i] = std::thread(cipher(imsg.at(i), key));
+	return result;
+}
 
-	for(int i = 0; i < imsg.size(); i++)
-		t[i].join();
+std::string mode::run(void)
+{
+	std::string msg = "1234";
+	std::vector<uint64_t> temp = to_integer(msg);
 
-	delete[] t;
+	return from_integer(temp);
+}
+
+
+
+std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
+{
+	std::vector<uint64_t> imsg;
+	//change string to integer vector & padding
+	imsg = to_integer(msg);
+
+    size_t total_blocks = imsg.size();
+	//exception handling
+    if (total_blocks == 0) 
+		return imsg;
+
+    std::vector<uint64_t> result(total_blocks);
+
+	//check hardware's thread count
+    unsigned int hw_threads = std::thread::hardware_concurrency();
+	    
+    int num_threads = (hw_threads >= 4) ? 4 : 2;
 	
-	return imsg;
+	//if block is smaller than thread, overhead exist
+    if (total_blocks < static_cast<size_t>(num_threads))
+        num_threads = static_cast<int>(total_blocks);
+	//vector for thread
+    std::vector<std::thread> t;
+    size_t chunk_size = total_blocks / num_threads;
+    size_t remainder = total_blocks % num_threads; 
+
+    size_t current_start = 0;
+
+    for (int i = 0; i < num_threads; ++i) 
+    {
+        size_t current_chunk = chunk_size + (i < remainder ? 1 : 0);
+        size_t start = current_start;
+        size_t end = start + current_chunk;
+	//start threading
+        t.emplace_back([this, &imsg, &result, start, end, key]() {
+			       for (size_t j = start; j < end; ++j)
+                	result[j] = this->cipher(imsg[j], key);
+        });
+
+		//save end index
+        current_start = end; 
+    }
+	//if it allow to join, join thread
+    for (auto& it : t)
+        if (it.joinable()) 
+			it.join();
+
+    return result;
+}
+
+std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
+{
+	std::vector<uint64_t> result;
+    size_t total_blocks = msg.size();
+	//exception handling
+    if (total_blocks == 0) 
+		return " ";
+
+	result.reserve(total_blocks);
+
+	//check hardware's thread count
+    unsigned int hw_threads = std::thread::hardware_concurrency();
+	    
+    int num_threads = (hw_threads >= 4) ? 4 : 2;
+	
+	//if block is smaller than thread, overhead exist
+    if (total_blocks < static_cast<size_t>(num_threads))
+        num_threads = static_cast<int>(total_blocks);
+	//vector for thread
+    std::vector<std::thread> t;
+    size_t chunk_size = total_blocks / num_threads;
+    size_t remainder = total_blocks % num_threads; 
+
+    size_t current_start = 0;
+
+    for (int i = 0; i < num_threads; ++i) 
+    {
+        size_t current_chunk = chunk_size + (i < remainder ? 1 : 0);
+        size_t start = current_start;
+        size_t end = start + current_chunk;
+	//start threading
+        t.emplace_back([this, &msg, &result, start, end, key]() {
+			       for (size_t j = start; j < end; ++j)
+                	result[j] = this->decipher(msg[j], key);
+        });
+
+		//save end index
+        current_start = end; 
+    }
+	//if it allow to join, join thread
+    for (auto& it : t)
+        if (it.joinable()) 
+			it.join();
+
+	std::string res = from_integer(result);
+
+    return res;
 }
