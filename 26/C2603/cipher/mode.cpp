@@ -284,6 +284,49 @@ std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key)
 	return res;
 }
 
+std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key)
+{
+	std::vector<uint64_t> imsg;
+	
+	//change string to integer vector
+	imsg = to_integer(msg);
+	//insert IV
+	uint64_t IV = random();
+	imsg.insert(imsg.begin(), IV);
+
+	size_t total_blocks = imsg.size();
+	//exception handling
+	if(total_blocks == 0)
+		return imsg;
+
+	for(size_t i = 1; i < total_blocks; i++)
+	{
+		IV = this->cipher(IV, key);
+		imsg[i] = imsg[i] ^ IV;
+	}
+
+	return imsg;
+}
+
+std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key)
+{
+	size_t total_blocks = msg.size();
+	if(total_blocks == 0)
+		return " ";
+
+	for(size_t i = 1; i < total_blocks; i++)
+	{
+		msg[0] = this->cipher(msg[0], key);
+		msg[i] = msg[i] ^ msg[0];
+	}
+	//before change to string, erase IV
+	msg.erase(msg.begin());
+
+	std::string result = from_integer(msg);
+
+	return result;
+}
+
 std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
 {
 	std::vector<uint64_t> imsg;

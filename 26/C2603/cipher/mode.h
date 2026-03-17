@@ -34,6 +34,9 @@ public:
 	//Cipher FeedBack mode
 	std::vector<uint64_t> CFB(std::string, uint64_t);
 	std::string CFB(std::vector<uint64_t>, uint64_t);
+	//Output FeedBack mode
+	std::vector<uint64_t> OFB(std::string, uint64_t);
+	std::string OFB(std::vector<uint64_t>, uint64_t);
 	//CounTeR
 	std::vector<uint64_t> CTR(std::string, uint64_t);
 	std::string CTR(std::vector<uint64_t>, uint64_t);
