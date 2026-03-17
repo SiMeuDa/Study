@@ -13,14 +13,14 @@ int main(void)
 	cout << "Key: ";
 	cin >> key;
 	cout << "Result(DES): " << endl;
-	std::vector<uint64_t> result = m.ECB(str, key);
+	std::vector<uint64_t> result = m.CTR(str, key);
 	cout << "Encryption: ";
 	for(auto it = result.begin(); it != result.end(); it++)
 		cout << *it;
 
 	cout << endl;
 
-	cout << "Decryption: " << m.ECB(result, key) << endl;
+	cout << "Decryption: " << m.CTR(result, key) << endl;
 
 
 	return 0;

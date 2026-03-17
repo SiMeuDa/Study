@@ -4,12 +4,12 @@
 #include <vector>
 #include <string>
 #include <thread>
-#include <future>
+#include <random>
 
 class mode : protected DES{
 private:
 	constexpr static int block_len = 8;
-
+	
 	//padding: PKCS#7 Standard
 	//do padding
 	std::string padding(std::string);
@@ -34,6 +34,10 @@ public:
 	//Electric CodeBook mode
 	std::vector<uint64_t> ECB(std::string, uint64_t);
 	std::string ECB(std::vector<uint64_t>, uint64_t);
+	//CounTeR
+	//should fix it
+	std::vector<uint64_t> CTR(std::string, uint64_t);
+	std::string CTR(std::vector<uint64_t>, uint64_t);
 	std::string run(std::string);
 
 };

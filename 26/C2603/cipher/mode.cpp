@@ -175,3 +175,127 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
 
     return res;
 }
+
+
+std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
+{
+	std::vector<uint64_t> imsg;
+
+	//change string to integer vector & padding
+	imsg = to_integer(msg);
+
+    size_t total_blocks = imsg.size();
+	//exception handling
+    if (total_blocks == 0) 
+		return imsg;
+
+    std::vector<uint64_t> result(total_blocks);
+	
+	//random section
+	uint64_t counter;
+	
+	std::random_device rd;
+
+    std::mt19937 engine(rd()); 
+
+    std::uniform_int_distribution<uint64_t> dist(0, 0xFFFFFFFFFFFFFFFF);
+	
+	counter = dist(engine);
+
+	//check hardware's thread count
+    unsigned int hw_threads = std::thread::hardware_concurrency();
+	    
+    int num_threads = (hw_threads >= 4) ? 4 : 2;
+	
+	//if block is smaller than thread, overhead exist
+    if (total_blocks < static_cast<size_t>(num_threads))
+        num_threads = static_cast<int>(total_blocks);
+	//vector for thread
+    std::vector<std::thread> t;
+    size_t chunk_size = total_blocks / num_threads;
+    size_t remainder = total_blocks % num_threads; 
+
+    size_t current_start = 0;
+
+    for (int i = 0; i < num_threads; ++i) 
+    {
+        size_t current_chunk = chunk_size + (i < remainder ? 1 : 0);
+        size_t start = current_start;
+        size_t end = start + current_chunk;
+	//start threading
+        t.emplace_back([this, &imsg, &result, start, end, key, &counter]() {
+			       for (size_t j = start; j < end; ++j)
+                	result[j] = imsg[j] ^ this->cipher(counter++, key);		
+					
+        });
+
+		//save end index
+        current_start = end; 
+    }
+	//if it allow to join, join thread
+    for (auto& it : t)
+        if (it.joinable()) 
+			it.join();
+	
+	counter -= result.size();
+
+	result.insert(result.begin(), counter);
+
+    return result;
+}
+
+
+
+std::string mode::CTR(std::vector<uint64_t> msg, uint64_t key)
+{
+	//take counter
+	uint64_t counter = msg.front();
+	msg.erase(msg.begin());
+
+	std::vector<uint64_t> result;
+    size_t total_blocks = msg.size();
+	//exception handling
+    if (total_blocks == 0) 
+		return " ";
+
+	result.resize(total_blocks, 0);
+
+	//check hardware's thread count
+    unsigned int hw_threads = std::thread::hardware_concurrency();
+	    
+    int num_threads = (hw_threads >= 4) ? 4 : 2;
+	
+	//if block is smaller than thread, overhead exist
+    if (total_blocks < static_cast<size_t>(num_threads))
+        num_threads = static_cast<int>(total_blocks);
+	//vector for thread
+    std::vector<std::thread> t;
+    size_t chunk_size = total_blocks / num_threads;
+    size_t remainder = total_blocks % num_threads; 
+
+    size_t current_start = 0;
+    
+	for (int i = 0; i < num_threads; ++i) 
+    {
+        size_t current_chunk = chunk_size + (i < remainder ? 1 : 0);
+        size_t start = current_start;
+        size_t end = start + current_chunk;
+	//start threading
+        t.emplace_back([this, &msg, &result, start, end, key, &counter]() {
+			       for (size_t j = start; j < end; ++j)
+                	result[j] = msg[j] ^ this->cipher(counter++, key);
+        });
+
+		//save end index
+        current_start = end; 
+    }
+	//if it allow to join, join thread
+    for (auto& it : t)
+        if (it.joinable()) 
+			it.join();
+
+	std::string res = from_integer(result);
+
+    return res;
+}
+
