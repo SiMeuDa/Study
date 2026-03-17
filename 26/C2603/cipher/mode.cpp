@@ -23,6 +23,21 @@ std::vector<uint64_t> mode::unpadding(std::vector<uint64_t> msg)
 	return msg;
 }
 
+inline uint64_t mode::random(void)
+{
+	uint64_t result;
+	
+	std::random_device rd;
+	//seelct engine for mt19937
+    std::mt19937 engine(rd()); 
+	//set distribution
+    std::uniform_int_distribution<uint64_t> dist(0, 0xFFFFFFFFFFFFFFFF);
+	
+	result = dist(engine);
+
+	return result;
+}
+
 std::vector<uint64_t> mode::to_integer(std::string msg)
 {
 	//first do padding
@@ -176,6 +191,98 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
     return res;
 }
 
+std::vector<uint64_t> mode::CBC(std::string msg, uint64_t key)
+{
+	std::vector<uint64_t> imsg;
+	
+	//change string to integer vector
+	imsg = to_integer(msg);
+	//save IV for deciphering
+	imsg.insert(imsg.begin(), random());
+	//take counter of block
+	size_t total_blocks = imsg.size();
+	//exception handling
+	if(total_blocks == 0)
+		return imsg;
+
+	for(size_t i = 1; i < total_blocks; i++)
+		//plain text ^ ciphered block(or IV)
+		imsg[i] = this->cipher((imsg[i] ^ imsg[i - 1]), key);
+
+	return imsg;
+}
+
+std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key)
+{
+	std::vector<uint64_t> result;
+	size_t total_blocks = msg.size();
+	if(total_blocks == 0)
+		return " ";
+	//save IV for variable
+	uint64_t IV = msg[0];
+	//temp
+	uint64_t deciphered;
+
+	//erase IV in vector
+	msg.erase(msg.begin());
+	//cause erase caculation
+	result.resize(total_blocks - 1, 0);
+	
+	for(size_t i = 0; i < total_blocks - 1; i++)
+	{
+		//save deciphered value
+		//-> CBC use ciphered block
+		deciphered = this->decipher(msg[i], key);
+		if(i)	//decipher block ^ ciphered block
+			result[i] = (deciphered ^ msg[i - 1]);
+		else	//first xor with IV
+			result[i] = deciphered ^ IV;
+	}
+
+	//change integer vector to string
+	std::string res = from_integer(result);
+
+	return res;
+}
+
+std::vector<uint64_t> mode::CFB(std::string msg, uint64_t key)
+{
+	std::vector<uint64_t> imsg;
+
+	//change string to integer vector
+	imsg = to_integer(msg);
+	//add random IV value
+	imsg.insert(imsg.begin(), random());
+
+	size_t total_blocks = imsg.size();
+	//exception handling
+	if(total_blocks == 0)
+		return imsg;
+	
+	//xor with ciphered block
+	for(size_t i = 1; i < total_blocks; i++)
+		imsg[i] = this->cipher(imsg[i - 1], key) ^ imsg[i];
+
+	return imsg;
+}
+
+std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key)
+{
+	std::vector<uint64_t> result;
+
+	size_t total_blocks = msg.size();
+	
+	if(total_blocks == 0)
+		return " ";
+
+	result.resize(total_blocks - 1, 0);
+	//same cipher logic (CFB standard)
+	for(size_t i = 1; i < total_blocks; i++)
+		result[i - 1] = this->cipher(msg[i - 1], key) ^ msg[i];
+	std::string res = from_integer(result);
+
+	return res;
+}
 
 std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
 {
@@ -191,16 +298,8 @@ std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
 
     std::vector<uint64_t> result(total_blocks);
 	
-	//random section
-	uint64_t counter;
-	
-	std::random_device rd;
-
-    std::mt19937 engine(rd()); 
-
-    std::uniform_int_distribution<uint64_t> dist(0, 0xFFFFFFFFFFFFFFFF);
-	
-	counter = dist(engine);
+	//take uint64_t random value
+	uint64_t counter = random();
 
 	//check hardware's thread count
     unsigned int hw_threads = std::thread::hardware_concurrency();
