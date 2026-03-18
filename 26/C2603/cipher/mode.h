@@ -6,7 +6,7 @@
 #include <thread>
 #include <random>
 
-class mode : protected DES{
+class mode : private DES{
 private:
 	constexpr static int block_len = 8;
 	
@@ -22,7 +22,7 @@ private:
 	std::vector<uint64_t> to_integer(std::string);
 	//change integer msg(vector> to msg
 	std::string from_integer(std::vector<uint64_t>);
-public:
+protected:
 	mode()	{};
 	~mode() {};
 	//Electric CodeBook mode
@@ -40,7 +40,5 @@ public:
 	//CounTeR
 	std::vector<uint64_t> CTR(std::string, uint64_t);
 	std::string CTR(std::vector<uint64_t>, uint64_t);
-	//running test case
-	std::string run(std::string);
 
 };

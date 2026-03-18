@@ -83,15 +83,6 @@ std::string mode::from_integer(std::vector<uint64_t> vec)
 	return result;
 }
 
-std::string mode::run(std::string test)
-{
-	std::vector<uint64_t> temp = to_integer(test);
-
-	return (from_integer(temp));
-}
-
-
-
 std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
 {
 	std::vector<uint64_t> imsg;
