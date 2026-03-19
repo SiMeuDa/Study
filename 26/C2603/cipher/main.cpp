@@ -1,155 +1,128 @@
 #include "cipher.h"
 #include <iostream>
+#include <fstream>
+#include <unistd.h> 
 #include <cctype>
-#include <cmath>
 using namespace std;
 
-bool strDigit(std::string);
-void getNum(uint64_t&);
-void Menu(void);
-
+bool isValidPath(const std::string& path);
+const char* filecrypto(int, char**);
 
 int main(int argc, char* argv[])
 {
-	cipher c;
-	uint64_t key;
-	string msg;
-	vector<uint64_t> vecResult;
-	string strResult;
-	if(argc >= 2)
-	{
-		bool isExist[4] = {false, false, false, false};
-		int index = 3;
-		try{
-			//check msg parameter
-			if(argv[1] == "-m")
-				isExist[0] = true;
-			//check key parameter
-			for(int i = index; i < argc; i++)
-			{
-				if(argv[i] == "-k")
-				{
-					isExist[1] = true;
-					index = i + 1;
-					break;
-				}
-			}
-			
-			string strKey = argv[index];
-			//overflow check
-			if(strKey.length() < 20)
-				isExist[2] = true;
-			else if(strKey.length() == 20)
-			{
-				const char* uint64_max[20] = {
-					'1', '8', '4', '4',
-					'6', '7', '4', '4',
-					'0', '7', '3', '7',
-					'0', '9', '5', '5',
-					'1', '6', '1', '5'
-					};
-				for(int i = 0; i < 20; i++)
-				{
-					if(strKey[i] < uint64_max[i])
-						isExist[2] = true;
-					else if(strKey[i] > uint64_max[i])
-					{
-						isExist[2] = false;
-						break;
-					}
-					
-				}
-			}
-
-			//Check En/Decryption parameter
-			if(argv[index + 1] == "-en")
-				isExist[3] = true;
-			for(int i = 0; i < 4; i++)
-				if(!isExist[i])
-					throw("Error");
-
-		}catch(const char* msg)
+	string errMsg;
+	try{
+		if((argc == 7) && (argv[3] == "-f"))
 		{
-			//Terminate in error sequence
-			cerr << "[" << msg << "]: Usage: [file_name] -p [message] -k [integer key] -en [1/0]" << endl;
-			return -1;
-		}
-		
-		string num = argv[index];
-		key = static_cast<uint64_t>(num);
-		for(int i = 2; i < index - 1; i++)
-			msg.append(argv[i]);
-		if(argv[argc - 1] == "1")
-			vecResult = c.encryption(msg, key);
-		else
-			vecResult = c.decryption(msg, key);
-		
-		cout << "[Result]: " << endl;
+	//./[file_name] -en [1/0]  -f [file_path] -k [key]
+			if((argv[5] != "-k") || (argv[1] != "-en"))
+				throw("Invalid Parameter");
 
-		for(auto it = vecResult.begin(); it != vecResult.end(); it++)
-			cout << *it;
-		cout << "\n";
-
-		return 0;
+			errMsg = filecrypto(argc, argv); 
+				if(errMsg != "true")
+					throw(errMsg);
 		}
-	/*
-	while(true)
+	}catch(const char* msg)
 	{
-		
+		cerr << "[Error]: " << msg << endl;
+		return -1;
 	}
-*/
-	return 0;
+
 }
 
-bool strDigit(std::string str)
-{
-	int len = str.length();
-
-	for(int i = 0; i < len; i++)
-		if(!isdigit(str[i]))
-			return false;
-	return true;
+bool isValidPath(const std::string& path)
+{//check whether file path is valid
+    return access(path.c_str(), F_OK) == 0;
 }
 
-void getNum(uint64_t& num)
+const char* filecrypto(int argc, char** argv)
 {
-	num = 0;
+	try{
+		//path check
+		if(!isValidPath(argv[4]))
+			throw("Invalid File Path");
 
-	string input;
+		fstream fin(argv[4], ios::in);
+		if(fin.fail())
+			throw("Failed to open File");
 
-	if(!(getline(cin, input)))
-		return;
+		cipher c;
+		std::string fileStr;
+		std::string buffer;
+		std::vector<uint64_t> vecRes;
 
-	if(!(input.find("0x") == string::npos))
-	{//is hexa
-		static char hexa[16] = {
-			'0', '1', '2', '3',
-			'4', '5', '6', '7', 
-			'8', '9', 'A', 'B', 
-			'C', 'D', 'E', 'F'
-		};
-		//erase 0x
-		input.erase(0, 2);
-
-		int len = input.length();
-		int i, j;
-		for(i = 0; i < len; i++)
+		while(fin.eof() == EOF)
 		{
-			for(j = 0; j < 16; j++)
-			{
-				if(islower(input[i]))
-					input[i] = toupper(input[i]);
-				if(input[i] == hexa[j])
-					break;
-			}
-			num += static_cast<uint64_t>(pow(j, len - 1 - i));
+			fin >> buffer;
+			fileStr.append(buffer);
 		}
-	}
-	else if(strDigit(input))
-		num = static_cast<uint64_t>(stoi(input));
-	return;
-}
+		fin.close();
+		//take key
+		buffer = argv[6];
+		
+		//make key uint64_t
+		uint64_t key = 0;
+		int len = 0;
+	
+		for(int i = 0; i < len; i++)
+		{
+			//check overflow
+			if(key > key * 10)
+				throw("Key value is Too Big");
+			key *= 10;
+			//check overflow
+			if(key > key + buffer[i] - '0')
+				throw("Key value is Too Big");
+			key += (buffer[i] - '0');
+		}
 
-void Menu(void)
-{
+		fstream fout(argv[4], ios::out);
+		if(fout.fail())
+			throw("Failed to open File");
+
+		if(argv[3] == "1")
+		{
+			vecRes = c.encryption(fileStr, key);	
+			for(auto it = vecRes.begin(); it != vecRes.end(); it++)
+				fout << *it;
+			fout.close();
+		}
+		else if(argv[3] == "0")
+		{
+			len = fileStr.length();
+			uint64_t take;
+
+			for(int i = 0; i < len; i++)
+			{
+				if(!isdigit(fileStr[i]))
+					throw("Invalid File Input");
+
+				if((i % 63 == 0) && (i != 0))
+				{
+					vecRes.push_back(take);
+					take = 0;
+				}
+				if(take > take * 10)
+					throw("Invalid File Input");
+				take *= 10;
+				//change char to integer
+				if(take > take + fileStr[i] - '0')
+					throw("Invalid File Input");
+				take += (fileStr[i] - '0');
+			}
+
+			fileStr = c.decryption(vecRes, key);
+
+			fout << fileStr;
+
+			fout.close();
+		}
+		else//argv[3] == bool type
+			throw("Invalid Input");
+	}catch(const char* msg)
+	{
+		return msg;
+	}
+	//Normal Return Msg
+	return "true";
 }
