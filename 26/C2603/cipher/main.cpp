@@ -51,7 +51,7 @@ const char* filecrypto(int argc, char** argv)
 		std::string buffer;
 		std::vector<uint64_t> vecRes;
 
-		while(fin.eof() == EOF)
+		while(!fin.eof())
 		{
 			fin >> buffer;
 			fileStr.append(buffer);

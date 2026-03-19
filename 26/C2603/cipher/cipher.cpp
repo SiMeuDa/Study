@@ -15,3 +15,8 @@ void setParity(uint64_t& msg)
         msg |=  ((uint64_t)parity << (i * 8));
     }
 }
+
+std::vector<uint64_t> encryption(std::string msg, uint64_t key)
+{
+	std::vector<uint64_t> result = 
+}
