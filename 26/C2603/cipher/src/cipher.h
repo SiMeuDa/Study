@@ -15,4 +15,3 @@ public:
 	std::vector<uint64_t> encryption(std::string, uint64_t);
 	std::string decryption(std::vector<uint64_t>, uint64_t);
 };
-
