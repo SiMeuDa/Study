@@ -45,10 +45,13 @@ std::vector<uint64_t> mode::to_integer(std::string msg)
 	
 	//save char to integer result
 	std::vector<uint64_t> result;
+	
 	//for using repeatence
 	int block_count = msg.length() / block_len;
+	
 	//resize & initalize vector
 	result.resize(block_count, 0);
+
 	//save string each block
 	//casting to uint64_t(unless msg casted to 32bit)
 	//shift 8 * (8 - j - 1)
@@ -83,7 +86,7 @@ std::string mode::from_integer(std::vector<uint64_t> vec)
 	return result;
 }
 
-std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
+std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> imsg;
 	//change string to integer vector & padding
@@ -117,9 +120,13 @@ std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
         size_t start = current_start;
         size_t end = start + current_chunk;
 	//start threading
-        t.emplace_back([this, &imsg, &result, start, end, key]() {
+        t.emplace_back([this, &imsg, &result, start, end, key, key2]() {
+				if(key2 == 0)
 			       for (size_t j = start; j < end; ++j)
                 	result[j] = this->cipher(imsg[j], key);
+				else
+					for (size_t j = start; j < end; ++j)
+					result[j] = this->cipher(this->decipher(this->cipher(imsg[j], key), key2), key);
         });
 
 		//save end index
@@ -133,7 +140,7 @@ std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key)
     return result;
 }
 
-std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
+std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> result;
     size_t total_blocks = msg.size();
@@ -164,9 +171,13 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
         size_t start = current_start;
         size_t end = start + current_chunk;
 	//start threading
-        t.emplace_back([this, &msg, &result, start, end, key]() {
+        t.emplace_back([this, &msg, &result, start, end, key, key2]() {
+				if(key2 == 0)
 			       for (size_t j = start; j < end; ++j)
                 	result[j] = this->decipher(msg[j], key);
+				else
+					for(size_t j = start; j < end; ++j)
+					result[j] = this->decipher(this->cipher(this->decipher(msg[j], key), key2), key);
         });
 
 		//save end index
@@ -177,12 +188,10 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key)
         if (it.joinable()) 
 			it.join();
 
-	std::string res = from_integer(result);
-
-    return res;
+	return from_integer(result);
 }
 
-std::vector<uint64_t> mode::CBC(std::string msg, uint64_t key)
+std::vector<uint64_t> mode::CBC(std::string msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> imsg;
 	
@@ -195,15 +204,18 @@ std::vector<uint64_t> mode::CBC(std::string msg, uint64_t key)
 	//exception handling
 	if(total_blocks == 0)
 		return imsg;
-
-	for(size_t i = 1; i < total_blocks; i++)
-		//plain text ^ ciphered block(or IV)
-		imsg[i] = this->cipher((imsg[i] ^ imsg[i - 1]), key);
+	if(key2 == 0)
+		for(size_t i = 1; i < total_blocks; i++)
+			//plain text ^ ciphered block(or IV)
+			imsg[i] = this->cipher((imsg[i] ^ imsg[i - 1]), key);
+	else
+		for(size_t i = 1; i < total_blocks; i++)
+			imsg[i] = this->cipher(this->decipher(this->cipher((imsg[i] ^ imsg[i - 1]), key), key2), key);
 
 	return imsg;
 }
 
-std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key)
+std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> result;
 	size_t total_blocks = msg.size();
@@ -223,7 +235,11 @@ std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key)
 	{
 		//save deciphered value
 		//-> CBC use ciphered block
-		deciphered = this->decipher(msg[i], key);
+		if(key2 == 0)
+			deciphered = this->decipher(msg[i], key);
+		else
+			deciphered = this->decipher(this->cipher(this->decipher(msg[i], key), key2), key);
+
 		if(i)	//decipher block ^ ciphered block
 			result[i] = (deciphered ^ msg[i - 1]);
 		else	//first xor with IV
@@ -231,12 +247,10 @@ std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key)
 	}
 
 	//change integer vector to string
-	std::string res = from_integer(result);
-
-	return res;
+	return from_integer(result);
 }
 
-std::vector<uint64_t> mode::CFB(std::string msg, uint64_t key)
+std::vector<uint64_t> mode::CFB(std::string msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> imsg;
 
@@ -251,13 +265,17 @@ std::vector<uint64_t> mode::CFB(std::string msg, uint64_t key)
 		return imsg;
 	
 	//xor with ciphered block
-	for(size_t i = 1; i < total_blocks; i++)
-		imsg[i] = this->cipher(imsg[i - 1], key) ^ imsg[i];
+	if(key2 == 0)
+		for(size_t i = 1; i < total_blocks; i++)
+			imsg[i] = this->cipher(imsg[i - 1], key) ^ imsg[i];
+	else
+		for(size_t i = 1; i < total_blocks; i++)
+			imsg[i] = this->cipher(this->decipher(this->cipher(imsg[i - 1], key), key2), key) ^ imsg[i];
 
 	return imsg;
 }
 
-std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key)
+std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> result;
 
@@ -268,14 +286,17 @@ std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key)
 
 	result.resize(total_blocks - 1, 0);
 	//same cipher logic (CFB standard)
-	for(size_t i = 1; i < total_blocks; i++)
-		result[i - 1] = this->cipher(msg[i - 1], key) ^ msg[i];
-	std::string res = from_integer(result);
+	if(key2 == 0)
+		for(size_t i = 1; i < total_blocks; i++)
+			result[i - 1] = this->cipher(msg[i - 1], key) ^ msg[i];
+	else
+		for(size_t i = 1; i < total_blocks; i++)
+			result[i - 1] = this->cipher(this->decipher(this->cipher(msg[i - 1], key), key2), key) ^ msg[i];
 
-	return res;
+	return from_integer(result);
 }
 
-std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key)
+std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> imsg;
 	
@@ -289,26 +310,46 @@ std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key)
 	//exception handling
 	if(total_blocks == 0)
 		return imsg;
-
-	for(size_t i = 1; i < total_blocks; i++)
+	if(key2 == 0)
+	{//One DES
+		for(size_t i = 1; i < total_blocks; i++)
+		{
+			IV = this->cipher(IV, key);
+			imsg[i] = imsg[i] ^ IV;
+		}
+	}
+	else
 	{
-		IV = this->cipher(IV, key);
-		imsg[i] = imsg[i] ^ IV;
+		for(size_t i = 1; i < total_blocks; i++)
+		{
+			IV = this->cipher(this->decipher(this->cipher(IV, key), key2), key);
+			imsg[i] = imsg[i] ^ IV;
+		}
 	}
 
 	return imsg;
 }
 
-std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key)
+std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 {
 	size_t total_blocks = msg.size();
 	if(total_blocks == 0)
 		return " ";
-
-	for(size_t i = 1; i < total_blocks; i++)
+	if(key2 == 0)
 	{
-		msg[0] = this->cipher(msg[0], key);
-		msg[i] = msg[i] ^ msg[0];
+		for(size_t i = 1; i < total_blocks; i++)
+		{
+			msg[0] = this->cipher(msg[0], key);
+			msg[i] = msg[i] ^ msg[0];
+		}
+	}
+	else
+	{
+		for(size_t i = 1; i < total_blocks; i++)
+		{
+			msg[0] = this->cipher(this->decipher(this->cipher(msg[0], key), key2), key);
+			msg[i] = msg[i] ^ msg[0];
+		}
 	}
 	//before change to string, erase IV
 	msg.erase(msg.begin());
@@ -318,7 +359,7 @@ std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key)
 	return result;
 }
 
-std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
+std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key, uint64_t key2)
 {
 	std::vector<uint64_t> imsg;
 
@@ -356,10 +397,13 @@ std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
         size_t start = current_start;
         size_t end = start + current_chunk;
 	//start threading
-        t.emplace_back([this, &imsg, &result, start, end, key, &counter]() {
+        t.emplace_back([this, &imsg, &result, start, end, key, key2, &counter]() {
+				if(key2 == 0)
 			       for (size_t j = start; j < end; ++j)
                 	result[j] = imsg[j] ^ this->cipher(counter++, key);		
-					
+				else
+					for(size_t j = start; j < end; ++j)
+					result[j] = imsg[j] ^ this->cipher(this->decipher(this->cipher(counter++, key), key2), key);
         });
 
 		//save end index
@@ -379,7 +423,7 @@ std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key)
 
 
 
-std::string mode::CTR(std::vector<uint64_t> msg, uint64_t key)
+std::string mode::CTR(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 {
 	//take counter
 	uint64_t counter = msg.front();
@@ -414,9 +458,13 @@ std::string mode::CTR(std::vector<uint64_t> msg, uint64_t key)
         size_t start = current_start;
         size_t end = start + current_chunk;
 	//start threading
-        t.emplace_back([this, &msg, &result, start, end, key, &counter]() {
+        t.emplace_back([this, &msg, &result, start, end, key, key2, &counter]() {
+				if(key2 == 0)
 			       for (size_t j = start; j < end; ++j)
                 	result[j] = msg[j] ^ this->cipher(counter++, key);
+				else
+					for(size_t j = start; j < end; ++j)
+					result[j] = msg[j] ^ this->cipher(this->decipher(this->cipher(counter++, key), key2), key);
         });
 
 		//save end index
@@ -427,8 +475,6 @@ std::string mode::CTR(std::vector<uint64_t> msg, uint64_t key)
         if (it.joinable()) 
 			it.join();
 
-	std::string res = from_integer(result);
-
-    return res;
+	return from_integer(result);
 }
 

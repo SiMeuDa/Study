@@ -6,7 +6,7 @@
 #include <thread>
 #include <random>
 
-class mode : private DES{
+class mode : protected DES{
 private:
 	constexpr static int block_len = 8;
 	
@@ -26,19 +26,19 @@ protected:
 	mode()	{};
 	~mode() {};
 	//Electric CodeBook mode
-	std::vector<uint64_t> ECB(std::string, uint64_t);
-	std::string ECB(std::vector<uint64_t>, uint64_t);
+	std::vector<uint64_t> ECB(std::string, uint64_t, uint64_t = 0);
+	std::string ECB(std::vector<uint64_t>, uint64_t, uint64_t = 0);
 	//Cipher Block Chaining mode
-	std::vector<uint64_t> CBC(std::string, uint64_t);
-	std::string CBC(std::vector<uint64_t>, uint64_t);
+	std::vector<uint64_t> CBC(std::string, uint64_t, uint64_t = 0);
+	std::string CBC(std::vector<uint64_t>, uint64_t, uint64_t = 0);
 	//Cipher FeedBack mode
-	std::vector<uint64_t> CFB(std::string, uint64_t);
-	std::string CFB(std::vector<uint64_t>, uint64_t);
+	std::vector<uint64_t> CFB(std::string, uint64_t, uint64_t = 0);
+	std::string CFB(std::vector<uint64_t>, uint64_t, uint64_t = 0);
 	//Output FeedBack mode
-	std::vector<uint64_t> OFB(std::string, uint64_t);
-	std::string OFB(std::vector<uint64_t>, uint64_t);
+	std::vector<uint64_t> OFB(std::string, uint64_t, uint64_t = 0);
+	std::string OFB(std::vector<uint64_t>, uint64_t, uint64_t = 0);
 	//CounTeR
-	std::vector<uint64_t> CTR(std::string, uint64_t);
-	std::string CTR(std::vector<uint64_t>, uint64_t);
+	std::vector<uint64_t> CTR(std::string, uint64_t, uint64_t = 0);
+	std::string CTR(std::vector<uint64_t>, uint64_t, uint64_t = 0);
 
 };

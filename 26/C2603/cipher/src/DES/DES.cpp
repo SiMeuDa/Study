@@ -1,5 +1,23 @@
 #include "DES.h"
 
+bool DES::chkParity(uint64_t key)
+{
+	for (int i = 0; i < 8; i++)
+    {
+    	uint8_t group = (key >> (i * 8)) & 0xFF;
+		//count 8bit's 1
+ 	    int ones = std::bitset<8>(group).count();
+		//if count odd, it is ok		
+       	bool parity = (ones % 2 == 1) ? 1 : 0;
+
+       if(parity == 0)
+		   return false;
+    }
+
+	return true;
+
+}
+
 uint32_t DES::LCS(uint32_t value, size_t count)
 {
 	for(size_t i = 0; i < count; i++)
@@ -34,8 +52,11 @@ uint64_t DES::IP(uint64_t msg)
 	return result;
 }
 
-void DES::keySchedule(uint64_t key)
+bool DES::keySchedule(uint64_t key)
 {
+	//check Parity Bit
+	if(!chkParity(key))
+		return false;
 	//Standard Table
 	int pc1_Ctable[28] = {
 		57, 49, 41, 33, 25, 17,  9,
@@ -96,6 +117,8 @@ void DES::keySchedule(uint64_t key)
 		
 		result = 0;
 	}
+
+	return true;
 }
 
 uint64_t DES::FP(uint64_t msg)
@@ -124,7 +147,8 @@ uint64_t DES::FP(uint64_t msg)
 uint64_t DES::cipher(uint64_t msg, uint64_t key)
 {
 	//Scheduling Key to sub Key
-	this->keySchedule(key);
+	if(!this->keySchedule(key))
+		return 0;
 	//Initailze Permutation
 	msg = this->IP(msg);
 	//feistel structure
@@ -139,7 +163,8 @@ uint64_t DES::decipher(uint64_t msg, uint64_t key)
 {
 	
 	//Scheduling Key to sub Key
-	this->keySchedule(key);
+	if(!this->keySchedule(key))
+		return 0;
 	//Initailze Permutation
 	msg = this->IP(msg);
 

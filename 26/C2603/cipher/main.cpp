@@ -21,20 +21,25 @@ int main(int argc, char* argv[])
 	cipher c;
 	try{
 		//isEncryption: 1, filePath: 1, key: 1
-		if((argc == 7) && (argv[3] == "-f"sv) && (argv[5] == "-k"sv) && (argv[1] == "-en"sv))
+		if(((argc == 7) || (argc == 8)) && (argv[3] == "-f"sv) && (argv[5] == "-k"sv) && (argv[1] == "-en"sv))
 		{//Standard DES section
 		//foam: ./[file_name] -en [1/0] -f [file_path] -k [key]
 			if(!isValidPath(argv[4]))
 				throw std::invalid_argument("[Invalid Input]: Wrong File Path");
 
 			fstream file;
-			uint64_t key;
+			uint64_t key, key2;
 			char buffer[128];
 			string str;
 
 
 			//UINT64_MAX = 18,446,744,073,709,551,615 = 0xFFFFFFFFFFFFFFFF<F12
 			try{
+				if((argc == 9) && (argv[6] != argv[7]))
+					key2 = stoull(argv[7]);
+				else
+					key2 = 0;
+
 				key = stoull(argv[6]);
 			}catch(const out_of_range& e)
 			{
@@ -54,16 +59,16 @@ int main(int argc, char* argv[])
 					throw std::invalid_argument("[Invalid Input]: Failed to Open File");
 
 				//take file msg
-				while(!file.eof())
-				{
-					file.read(buffer, 128);
-					str.append(buffer);
-				}
+				while(file.read(buffer, sizeof(buffer)))
+					str.append(buffer, file.gcount());	//take real read count, append that
+
+				if(file.gcount() > 0)
+					str.append(buffer, file.gcount());	//append rest string
 
 				file.close();
 
 				//encrypt logic
-				std::vector<uint64_t> vecResult = c.encryption(str, key);
+				std::vector<uint64_t> vecResult = c.encryption(str, key, key2);
 				if(vecResult.empty())
 					throw std::length_error("[Length Error]: Failed to Encrypt File");
 				
@@ -99,10 +104,8 @@ int main(int argc, char* argv[])
 
 				file.close();
 				//decrypt logic
-				str = c.decryption(vecInput, key);
-				cout << str<< endl;
-				return 0;
-
+				str = c.decryption(vecInput, key, key2);
+				
 				file.open(argv[4], ios::out | ios::binary | ios::trunc);
 				if(file.fail())
 					throw invalid_argument("[Invalid Input]: Failed to Open File");
@@ -116,11 +119,6 @@ int main(int argc, char* argv[])
 			}
 			else	//Invalid Data Type
 				throw std::invalid_argument("[Invalid Input]: -en argument must be 1 or 0");
-		}
-		else if((argc == 8) && (argv[3] == "-f") && (argv[5] == "-k") && (argv[1] == "-en"))
-		{//3DES section
-		//foam: ./[file_name] -en [1/0]* -f [file_path] -k [key0] [key1]
-
 		}
 		else	//Invalid parameter input
 			throw invalid_argument("Invalid Input\n[Usage]: ./[file_name] -en [1/0] -f [file_path] -k [key] ([key2])");

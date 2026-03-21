@@ -12,6 +12,6 @@ public:
 	cipher() {};
 	~cipher() {};
 
-	std::vector<uint64_t> encryption(std::string, uint64_t);
-	std::string decryption(std::vector<uint64_t>, uint64_t);
+	std::vector<uint64_t> encryption(std::string, uint64_t, uint64_t = 0);
+	std::string decryption(std::vector<uint64_t>, uint64_t, uint64_t = 0);
 };
