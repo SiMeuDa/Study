@@ -293,6 +293,12 @@ std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key, uint64_t key2)
 	{
 		IV = this->cipher(this->decipher(this->cipher(IV, key), key2), key);
 		imsg[i] = imsg[i] ^ IV;
+
+		if(m_callback)
+		{
+			double fraction = static_cast<double>(i) / (total_blocks - 1);
+			m_callback->update(fraction);
+		}
 	}
 
 	return imsg;

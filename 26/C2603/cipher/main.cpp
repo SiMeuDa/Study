@@ -4,6 +4,7 @@
 		LATER, THIS PROGRAM'S CIPHER LOGIC WILL CHANGE FOR 3DES
  */
 #include "src/cipher.h"
+#include "src/console/consolePrinter.h"
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
@@ -31,9 +32,12 @@ int main(int argc, char* argv[])
 		chckArgu(argc, argv);
 
 		cipher c;
+		ConsolePrinter printer;
 		uint64_t key, key2;
 		string str;
 	
+		c.setProgressCallback(&printer);
+
 		//take key
 		//If OverFlow or Invalid Value, throw exception
 		takeKey(argc, argv, key, key2);

@@ -1,0 +1,32 @@
+main.cpp: In function ‘int main(int, char**)’:
+main.cpp:39:38: error: ‘void feistel::setProgressCallback(IProgress*)’ is inaccessible within this context
+   39 |                 c.setProgressCallback(&printer);
+      |                 ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+In file included from src/DES/DES.h:6,
+                 from src/mode.h:2,
+                 from src/cipher.h:6,
+                 from main.cpp:6:
+src/DES/feistel.h:21:14: note: declared here
+   21 |         void setProgressCallback(IProgress* callback) { m_callback = callback; }
+      |              ^~~~~~~~~~~~~~~~~~~
+main.cpp:39:38: error: ‘feistel’ is not an accessible base of ‘cipher’
+   39 |                 c.setProgressCallback(&printer);
+      |                 ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+src/console/iprogress.h:1:9: warning: #pragma once in main file
+    1 | #pragma once
+      |         ^~~~
+src/mode.cpp: In member function ‘std::vector<long unsigned int> mode::OFB(std::string, uint64_t, uint64_t)’:
+src/mode.cpp:297:20: error: ‘IProgress* feistel::m_callback’ is private within this context
+  297 |                 if(m_callback)
+      |                    ^~~~~~~~~~
+In file included from src/mode.h:2,
+                 from src/mode.cpp:1:
+src/DES/DES.h:8:7: note: declared private here
+    8 | class DES : private feistel{
+      |       ^~~
+src/mode.cpp:300:25: error: ‘IProgress* feistel::m_callback’ is private within this context
+  300 |                         m_callback->update(fraction);
+      |                         ^~~~~~~~~~
+src/DES/DES.h:8:7: note: declared private here
+    8 | class DES : private feistel{
+      |       ^~~
