@@ -6,7 +6,7 @@
 #include <thread>
 #include <random>
 
-class mode : protected DES{
+class mode : public DES{
 private:
 	constexpr static int block_len = 8;
 	

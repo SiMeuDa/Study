@@ -5,7 +5,7 @@
 #include <bitset>
 #include "feistel.h"
 
-class DES : private feistel{
+class DES : public feistel{
 private:
 	bool chkParity(uint64_t);
 	std::vector<uint64_t> subKey;

@@ -26,16 +26,17 @@ inline void writeValue(const char*, const std::string);
 
 int main(int argc, char* argv[])
 {
+	ConsolePrinter printer;
+	cipher c;
+	uint64_t key, key2;
+	string str;
+
 	try{
 		//check Argument
 		//If Invalid Argument, throw exception
 		chckArgu(argc, argv);
 
-		cipher c;
-		ConsolePrinter printer;
-		uint64_t key, key2;
-		string str;
-	
+		//set loading console
 		c.setProgressCallback(&printer);
 
 		//take key
@@ -57,7 +58,7 @@ int main(int argc, char* argv[])
 			//write value to file
 			writeValue(argv[4], vecResult);
 
-			clog << "[SYSTEM]: SUCCESS TO ENCRYPT FILE" << endl;
+			clog << printer.BOLD << printer.BLUE << "[SYSTEM]: SUCCESS TO ENCRYPT FILE" << printer.RESET << endl;
 		}
 		else if(argv[2] == "0"sv)
 		{//Decryption
@@ -75,13 +76,13 @@ int main(int argc, char* argv[])
 			//write value to file
 			writeValue(argv[4], str);
 
-			clog << "[SYSTEM]: SUCCESS TO DECRYPT FILE" << endl;
+			clog << printer.BOLD << printer.BLUE << "[SYSTEM]: SUCCESS TO DECRYPT FILE" << printer.RESET << endl;
 		}
 		else	//Invalid Data Type
 				throw std::invalid_argument("[Invalid Input]: -en argument must be 1 or 0");
 	}catch(const std::exception& e)
 	{
-		cerr << "[Error]: " << e.what() << endl;
+		cerr << printer.BOLD << printer.RED << "[Error]: " << e.what() << printer.RESET << endl;
 		return -1;
 	}
 
@@ -111,7 +112,7 @@ inline void chckArgu(int argc, char** argv)
 			throw std::invalid_argument("[Invalid Input]: Wrong File Path");
 	}
 	else	//Invalid parameter input
-		throw invalid_argument("Invalid Input\n[Usage]: ./[file_name] -en [1/0] -f [file_path] -k [key] ([key2])");
+		throw invalid_argument("Invalid Input\n\033[0m\033[1m[Usage]: ./[file_name] -en [1/0] -f [file_path] -k [key] ([key2])");
 }
 
 inline void takeKey(int argc, char** argv, uint64_t& key, uint64_t& key2)

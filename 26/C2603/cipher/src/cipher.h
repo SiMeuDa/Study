@@ -5,7 +5,7 @@
 #include <string>
 #include "mode.h"
 
-class cipher : private mode {
+class cipher : public mode {
 private:
 	void setParity(uint64_t&);
 public:

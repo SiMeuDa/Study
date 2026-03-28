@@ -314,6 +314,12 @@ std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	{
 		msg[0] = this->cipher(this->decipher(this->cipher(msg[0], key), key2), key);
 		msg[i] = msg[i] ^ msg[0];
+
+		if(m_callback)
+		{
+			double fraction = static_cast<double>(i) / (total_blocks - 1);
+			m_callback->update(fraction);
+		}
 	}
 
 	//before change to string, erase IV
