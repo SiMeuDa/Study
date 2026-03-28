@@ -23,6 +23,16 @@ std::vector<uint64_t> mode::unpadding(std::vector<uint64_t> msg)
 	return msg;
 }
 
+size_t mode::real_size(const std::vector<uint64_t>& msg)
+{
+	uint8_t pad = msg[msg.size() - 1] & 0xFF;
+
+	if(pad < 1 || pad > 8)
+		pad = 0;
+
+	return msg.size() * 8 - pad;
+}
+
 inline uint64_t mode::random(void)
 {
 	uint64_t result;
@@ -66,20 +76,20 @@ std::string mode::from_integer(std::vector<uint64_t> vec)
 {
 	std::string result;
 	
-	size_t size = vec.size();
+	size_t size = real_size(vec);
+	size_t byte_w = 0;
 
 	//first do unpadding
 	vec = unpadding(vec);
 
-	result.reserve(block_len * size);
+	result.reserve(size);
 
-	for(size_t i = 0; i < size; i++)
+	for(auto it = vec.begin(); it != vec.end() && byte_w < size; it++)
 	{
-		for(size_t j = 0; j < block_len; j++)
+		for(size_t j = 0; j < block_len && byte_w < size; j++, byte_w++)
 		{
-			uint8_t temp = (vec[i] >> (block_len * (block_len - j - 1)) ) & 0xFF;
-			if(temp != 0)
-				result.push_back(static_cast<char>(temp));
+			uint8_t temp = (*it >> (block_len * (block_len - j - 1)) ) & 0xFF;
+			result.push_back(static_cast<char>(temp));
 		}
 	}
 
