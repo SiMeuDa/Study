@@ -6,6 +6,14 @@
 #include <thread>
 #include <random>
 #include <chrono>
+#include <cstring>
+
+void mode::secure_wipe(void* ptr, size_t len)
+{
+	static void* (*const volatile volatile_memset)(void*, int, size_t) = memset;
+
+	volatile_memset(ptr, 0, len);
+}
 
 std::string mode::padding(std::string msg)
 {	
@@ -93,7 +101,7 @@ std::string mode::from_integer(std::vector<uint64_t> vec)
 	return result;
 }
 
-std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key, uint64_t key2)
+std::vector<uint64_t> mode::ECB(std::string msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> imsg;
 	//change string to integer vector & padding
@@ -143,7 +151,7 @@ std::vector<uint64_t> mode::ECB(std::string msg, uint64_t key, uint64_t key2)
     return result;
 }
 
-std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
+std::string mode::ECB(std::vector<uint64_t> msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> result;
     size_t total_blocks = msg.size();
@@ -190,7 +198,7 @@ std::string mode::ECB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	return from_integer(result);
 }
 
-std::vector<uint64_t> mode::CBC(std::string msg, uint64_t key, uint64_t key2)
+std::vector<uint64_t> mode::CBC(std::string msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> imsg;
 	
@@ -210,7 +218,7 @@ std::vector<uint64_t> mode::CBC(std::string msg, uint64_t key, uint64_t key2)
 	return imsg;
 }
 
-std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
+std::string mode::CBC(std::vector<uint64_t> msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> result;
 	size_t total_blocks = msg.size();
@@ -243,7 +251,7 @@ std::string mode::CBC(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	return from_integer(result);
 }
 
-std::vector<uint64_t> mode::CFB(std::string msg, uint64_t key, uint64_t key2)
+std::vector<uint64_t> mode::CFB(std::string msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> imsg;
 
@@ -264,7 +272,7 @@ std::vector<uint64_t> mode::CFB(std::string msg, uint64_t key, uint64_t key2)
 	return imsg;
 }
 
-std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
+std::string mode::CFB(std::vector<uint64_t> msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> result;
 
@@ -281,7 +289,7 @@ std::string mode::CFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	return from_integer(result);
 }
 
-std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key, uint64_t key2)
+std::vector<uint64_t> mode::OFB(std::string msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> imsg;
 	
@@ -318,10 +326,13 @@ std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key, uint64_t key2)
 	
 	m_callback->update(static_cast<double>(1));
 
+	secure_wipe(&key, sizeof(key));
+	secure_wipe(&key2, sizeof(key2));
+
 	return imsg;
 }
 
-std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
+std::string mode::OFB(std::vector<uint64_t> msg, uint64_t& key, uint64_t& key2)
 {
 	size_t total_blocks = msg.size();
 	if(total_blocks == 0)
@@ -349,6 +360,8 @@ std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	}
 
 	m_callback->update(static_cast<double>(1));
+	explicit_bzero(&key, sizeof(uint64_t));
+	explicit_bzero(&key2, sizeof(uint64_t));
 
 	//before change to string, erase IV
 	msg.erase(msg.begin());
@@ -358,7 +371,7 @@ std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	return result;
 }
 
-std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key, uint64_t key2)
+std::vector<uint64_t> mode::CTR(std::string msg, uint64_t& key, uint64_t& key2)
 {
 	std::vector<uint64_t> imsg;
 
@@ -418,7 +431,7 @@ std::vector<uint64_t> mode::CTR(std::string msg, uint64_t key, uint64_t key2)
 
 
 
-std::string mode::CTR(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
+std::string mode::CTR(std::vector<uint64_t> msg, uint64_t& key, uint64_t& key2)
 {
 	//take counter
 	uint64_t counter = msg.front();
