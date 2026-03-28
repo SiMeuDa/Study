@@ -1,4 +1,7 @@
 #include "feistel.h"
+#include <cstdint>
+#include "../console/iprogress.h"
+#include <vector>
 
 //diffusion confusion
 uint32_t feistel::F(uint32_t R, uint64_t subkey)

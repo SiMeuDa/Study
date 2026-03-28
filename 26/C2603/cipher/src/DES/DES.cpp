@@ -1,4 +1,8 @@
 #include "DES.h"
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <bitset>
 
 bool DES::chkParity(uint64_t key)
 {

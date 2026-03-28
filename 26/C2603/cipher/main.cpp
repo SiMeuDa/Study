@@ -21,8 +21,8 @@ inline void takeKey(int, char**, uint64_t&, uint64_t&);
 //Divided to En/De Function
 inline void readValue(const char*, std::string&);
 inline void readValue(const char*, std::vector<uint64_t>&);
-inline void writeValue(const char*, const std::vector<uint64_t>);
-inline void writeValue(const char*, const std::string);
+inline void writeValue(const char*, const std::vector<uint64_t>&);
+inline void writeValue(const char*, const std::string&);
 
 int main(int argc, char* argv[])
 {
@@ -145,7 +145,7 @@ inline void readValue(const char* path, std::string& str)
 {
 	//read from file
 	fstream file;
-	char buffer[128];
+	char buffer[8192];
 
 	//open file for binary -> reduce program running time
 	file.open(path, ios::in | ios::binary);		
@@ -196,7 +196,7 @@ inline void readValue(const char* path, std::vector<uint64_t>& vec)
 }
 
 //ENCRYPTION LOGIC
-inline void writeValue(const char* path, const std::vector<uint64_t> vec)
+inline void writeValue(const char* path, const std::vector<uint64_t>& vec)
 {
 	//write to file
 	fstream file;
@@ -212,7 +212,7 @@ inline void writeValue(const char* path, const std::vector<uint64_t> vec)
 }
 
 //DECRYPTION LOGIC
-inline void writeValue(const char* path, const std::string str)
+inline void writeValue(const char* path, const std::string& str)
 {
 	//write to file
 	fstream file;

@@ -2,7 +2,6 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <bitset>
 #include "feistel.h"
 
 class DES : public feistel{

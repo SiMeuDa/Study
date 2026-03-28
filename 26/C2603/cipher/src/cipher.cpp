@@ -1,5 +1,9 @@
 #include "cipher.h"
-
+#include <bitset>
+#include <cstdint>
+#include <vector>
+#include <string>
+#include "mode.h"
 
 void cipher::setParity(uint64_t& key)
 {

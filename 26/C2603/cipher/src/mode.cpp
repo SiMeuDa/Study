@@ -1,4 +1,11 @@
 #include "mode.h"
+#include "DES/DES.h"
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <thread>
+#include <random>
+#include <chrono>
 
 std::string mode::padding(std::string msg)
 {	
@@ -289,17 +296,27 @@ std::vector<uint64_t> mode::OFB(std::string msg, uint64_t key, uint64_t key2)
 	if(total_blocks == 0)
 		return imsg;
 
+	auto lastUpdateTime = std::chrono::steady_clock::now();
+
 	for(size_t i = 1; i < total_blocks; i++)
 	{
 		IV = this->cipher(this->decipher(this->cipher(IV, key), key2), key);
 		imsg[i] = imsg[i] ^ IV;
-
-		if(m_callback)
+		//check current time
+		auto currentTime = std::chrono::steady_clock::now();
+		
+		std::chrono::duration<double> elapsed = currentTime - lastUpdateTime;
+		//10 fps loading & block count loading
+		if(m_callback && (elapsed.count() >= 0.1 || i % (total_blocks / 10 + 1) == 0))
 		{
 			double fraction = static_cast<double>(i) / (total_blocks - 1);
 			m_callback->update(fraction);
+			//update time
+			lastUpdateTime = currentTime;
 		}
 	}
+	
+	m_callback->update(static_cast<double>(1));
 
 	return imsg;
 }
@@ -310,17 +327,28 @@ std::string mode::OFB(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 	if(total_blocks == 0)
 		return " ";
 		
+	auto lastUpdateTime = std::chrono::steady_clock::now();
+	
 	for(size_t i = 1; i < total_blocks; i++)
 	{
 		msg[0] = this->cipher(this->decipher(this->cipher(msg[0], key), key2), key);
 		msg[i] = msg[i] ^ msg[0];
 
-		if(m_callback)
+		//check current time
+		auto currentTime = std::chrono::steady_clock::now();
+		
+		std::chrono::duration<double> elapsed = currentTime - lastUpdateTime;
+		//10 fps loading & block count loading
+		if(m_callback && (elapsed.count() >= 0.1 || i % (total_blocks / 10 + 1) == 0))
 		{
 			double fraction = static_cast<double>(i) / (total_blocks - 1);
 			m_callback->update(fraction);
+			//update time
+			lastUpdateTime = currentTime;
 		}
 	}
+
+	m_callback->update(static_cast<double>(1));
 
 	//before change to string, erase IV
 	msg.erase(msg.begin());

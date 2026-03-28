@@ -1,6 +1,8 @@
 #include "consolePrinter.h"
 #include <iostream>
 #include <iomanip>
+#include "iprogress.h"
+#include <string>
 
 ConsolePrinter::ConsolePrinter() : m_showText(true), YELLOW("\033[38;5;214m"), RED("\033[38;5;1m"), BLUE("\033[38;5;87m"), BOLD("\033[1m"), RESET("\033[0m"), BAR_WIDTH(20) {}
 
