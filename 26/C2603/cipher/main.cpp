@@ -114,12 +114,13 @@ inline void takeKey(int argc, char** argv, uint64_t& key, uint64_t& key2)
 {
 		//UINT64_MAX = 18,446,744,073,709,551,615 = 0xFFFFFFFFFFFFFFFF
 		try{
+			key = stoull(argv[6]);
+
 			if(argc == 8)
 				key2 = stoull(argv[7]);
 			else if(argc == 7)
-				key2 = 0;
+				key2 = key;
 
-			key = stoull(argv[6]);
 		}catch(const out_of_range& e)
 		{
 			key = 0;
@@ -169,6 +170,9 @@ inline void readValue(const char* path, std::vector<uint64_t>& vec)
 	//check file size
 	streamsize size = file.tellg();
 	
+	if(size % sizeof(uint64_t) != 0)
+		throw std::invalid_argument("[Invalid Input]: Invalid File (size no aligned)");
+
 	//return to begin
 	file.seekg(0, ios::beg);
 	

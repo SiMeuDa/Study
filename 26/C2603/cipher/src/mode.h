@@ -13,8 +13,6 @@ private:
 	//padding: PKCS#7 Standard
 	//do padding
 	std::string padding(std::string);
-	//do unpadding
-	std::vector<uint64_t> unpadding(std::vector<uint64_t>);
 	//after unpadding size
 	size_t real_size(const std::vector<uint64_t>& msg);
 	//return random value(64bit size)

@@ -19,8 +19,7 @@ void cipher::setParity(uint64_t& key)
 std::vector<uint64_t> cipher::encryption(std::string msg, uint64_t key, uint64_t key2)
 {
 	setParity(key);
-	if(key2 != 0)
-		setParity(key2);
+	setParity(key2);
 
 	return mode::OFB(msg, key, key2);
 }
@@ -28,8 +27,7 @@ std::vector<uint64_t> cipher::encryption(std::string msg, uint64_t key, uint64_t
 std::string cipher::decryption(std::vector<uint64_t> msg, uint64_t key, uint64_t key2)
 {
 	setParity(key);
-	if(key2 != 0)
-		setParity(key2);
+	setParity(key2);
 
 	return mode::OFB(msg, key, key2);
 }
