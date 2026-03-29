@@ -14,7 +14,6 @@ using namespace std;
 
 //Checking Function
 inline bool isValidPath(const std::string&);
-inline bool isStrDigit(const char*, int);
 //Mutual Function
 inline void chckArgu(int, char**);
 inline void takeKey(int, char**, uint64_t&, uint64_t&);
@@ -49,12 +48,12 @@ int main(int argc, char* argv[])
 			
 			//read value from file
 			readValue(argv[4], str);
-
+	
 			//encrypt logic
 			std::vector<uint64_t> vecResult = c.encryption(str, key, key2);
 			if(vecResult.empty())
 				throw std::length_error("[Length Error]: Failed to Encrypt File");
-			
+
 			//write value to file
 			writeValue(argv[4], vecResult);
 
@@ -92,14 +91,6 @@ int main(int argc, char* argv[])
 inline bool isValidPath(const std::string& path)
 {//check whether file path is valid
     return access(path.c_str(), F_OK) == 0;
-}
-
-inline bool isStrDigit(const char* msg, int len)
-{//check string is compromised for number
-	for(int i = 0; (i < len) | (msg[i] != '\0'); i++)
-		if(!isdigit(msg[i]))
-			return false;
-	return true;
 }
 
 inline void chckArgu(int argc, char** argv)
@@ -145,19 +136,20 @@ inline void readValue(const char* path, std::string& str)
 {
 	//read from file
 	fstream file;
-	char buffer[8192];
 
 	//open file for binary -> reduce program running time
-	file.open(path, ios::in | ios::binary);		
+	file.open(path, ios::in | ios::binary | ios::ate);		
 	if(file.fail())
 		throw std::invalid_argument("[Invalid Input]: Failed to Open File");
 	
 	//take file msg
-	while(file.read(buffer, sizeof(buffer)))
-		str.append(buffer, file.gcount());	//take real read count, append that
-	
-	if(file.gcount() > 0)
-		str.append(buffer, file.gcount());	//append rest string
+	std::streamsize size = file.tellg();
+	file.seekg(0, ios::beg);
+
+	str.resize(size);
+
+	if(size > 0)
+		file.read(str.data(), size);
 
 	file.close();
 }
