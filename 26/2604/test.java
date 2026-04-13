@@ -14,12 +14,11 @@ public class test{
 	public static void main(String[] args)
 	{
 		String test1 = "15, -41, 12, 42, -12, 2, 4";
-		String test2 = test1.replaceAll("[^0-9, -]", ",");
+		String test2 = test1.replaceAll("[^0-9,-]", ",");
 		StringTokenizer strtoken = new StringTokenizer(test2, ",");
 		int[] originalArr = new int[strtoken.countTokens()];
 		int index = 0;
-		System.out.println(test2);
-		/*
+		
 		while(strtoken.hasMoreTokens()){
 			originalArr[index] = Integer.parseInt(strtoken.nextToken());
 			index++;
@@ -32,6 +31,6 @@ public class test{
 				maxNumber = number;
 		}
 
-		System.out.print(maxNumber);*/
+		System.out.print(maxNumber);
 	}
 }
