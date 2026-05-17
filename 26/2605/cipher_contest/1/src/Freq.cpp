@@ -14,13 +14,13 @@ int main(int argc, char* argv[])
 	formula f;
 	int strLen;
 	//check frequency
-	uint16_t alpha[26];
+	double alpha[26];
 	string buffer, file;
 
 	for(int i = 0; i < 26; i++)
 		alpha[i] = 0;
 
-	fout.open("Chi_Result.txt", ios::out);
+	fout.open("Freq_Result.txt", ios::out);
 	if(!fout.is_open())
 	{
 		cerr << "Failed to Open Writing File" << endl;
@@ -79,11 +79,11 @@ int main(int argc, char* argv[])
 		}
 
 		fin.close();
-
-
-		Chi = f.Chis(alpha, sizeof(alpha) / sizeof(alpha[0]), count);
-
-		fout << "Chi(";
+	
+		for(int j = 0; j < 26; j++)
+			alpha[j] = static_cast<double>(alpha[j] * 100) / count;
+		
+		fout << "Key = ";
 		
 		if(i < 10)
 			fout << 0;
@@ -92,11 +92,12 @@ int main(int argc, char* argv[])
 		else
 			fout << 2;
 
-		fout << i % 10 << "): \t" << Chi;
-		if(i % 2 == 0)
-			fout << "\t\t";
-		else
-			fout << "\n";
+		fout << i % 10 << "\n";
+
+		for(auto num : alpha)
+			fout << num << " ";
+		
+		fout << "\n";
 	}
 	fout << "\n";
 

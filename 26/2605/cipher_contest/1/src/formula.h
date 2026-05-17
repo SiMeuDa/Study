@@ -18,7 +18,7 @@ public:
 
 uint16_t* formula::frequency(std::string str)
 {
-	uint16_t alphabet[26];
+	static uint16_t alphabet[26];
 	//init
 	for(int i = 0; i < 26; i++)
 		alphabet[i] = 0;
@@ -49,7 +49,7 @@ double formula::Chis(uint16_t* alpha, size_t size, uint16_t N)
 	 double Chi = 0;
 
 	for(size_t i = 0; i < size; i++)
-		Chi += (pow((static_cast<double>(alpha[i]) / N) - this->alphaFre[i], 2) / this->alphaFre[i]);
+		Chi += (pow((static_cast<double>(alpha[i] * 100) / N) - this->alphaFre[i], 2) / this->alphaFre[i]);
 
 	return Chi;
 }
