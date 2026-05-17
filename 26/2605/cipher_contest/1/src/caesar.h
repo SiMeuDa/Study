@@ -32,7 +32,7 @@ public:
 	caesar() {}
 	~caesar() {}
 
-	std::string crypto(const char* msg, volatile int& key, bool isErase = true)
+	std::string crypto(const char* msg, int key, bool isErase = true)
 	{
 		std::string text = msg;
 		int len = text.length();
@@ -46,7 +46,7 @@ public:
 		return text;
 	}
 
-	std::string decrypto(const char* msg, volatile int& key, bool isErase = true)
+	std::string decrypto(const char* msg, int key, bool isErase = true)
 	{
 		std::string text = msg;
 		int len = text.length();
