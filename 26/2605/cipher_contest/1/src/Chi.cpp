@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 
 		Chi = f.Chis(alpha, sizeof(alpha) / sizeof(alpha[0]), count);
 
-		fout << "Chi(";
+		fout << "Chi-Square(key: ";
 		
 		if(i < 10)
 			fout << 0;

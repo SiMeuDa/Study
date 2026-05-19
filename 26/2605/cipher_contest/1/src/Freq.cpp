@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 	
 		for(int j = 0; j < 26; j++)
 			alpha[j] = static_cast<double>(alpha[j] * 100) / count;
-		
+		char a = 'A';	
 		fout << "Key = ";
 		
 		if(i < 10)
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 		fout << i % 10 << "\n";
 
 		for(auto num : alpha)
-			fout << num << " ";
+			fout << a++ << ": " << num << " ";
 		
 		fout << "\n";
 	}
