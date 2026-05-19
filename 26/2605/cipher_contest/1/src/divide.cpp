@@ -44,8 +44,13 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		for(int i = j; i < len; i += div_num)
+		for(int i = j; i < len; i += div_num){
+			if(str[i] > 'Z' or str[i] < 'A')
+				continue;
+			if(i >= len)
+				break;
 			f << str[i];
+		}
 
 		f.close();
 	}

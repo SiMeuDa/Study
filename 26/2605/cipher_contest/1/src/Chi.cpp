@@ -53,15 +53,13 @@ int main(int argc, char* argv[])
 		}
 
 
-		if(count == 0)
-		{
-			//move to end
-			fin.seekg(0, ios::end);
-			//take count
-			count = fin.tellg();
-			//move to begin
-			fin.seekg(0, ios::beg);
-		}
+		//move to end
+		fin.seekg(0, ios::end);
+		//take count
+		count = fin.tellg();
+		//move to begin
+		fin.seekg(0, ios::beg);
+		
 		
 
 		//take line string
