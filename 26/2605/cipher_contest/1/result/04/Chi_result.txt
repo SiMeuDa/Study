@@ -1,0 +1,13 @@
+Chi( key = 0): 641.665	Chi( key = 1): 324.557	
+Chi( key = 2): 618.097	Chi( key = 3): 668.743	
+Chi( key = 4): 773.024	Chi( key = 5): 706.002	
+Chi( key = 6): 511.928	Chi( key = 7): 331.742	
+Chi( key = 8): 280.182	Chi( key = 9): 448.849	
+Chi( key = 10): 309.512	Chi( key = 11): 354.591	
+Chi( key = 12): 682.663	Chi( key = 13): 649.062	
+Chi( key = 14): 707.096	Chi( key = 15): 687.46	
+Chi( key = 16): 602.65	Chi( key = 17): 409.187	
+Chi( key = 18): 409.48	Chi( key = 19): 716.68	
+Chi( key = 20): 360.846	Chi( key = 21): # 199.492	
+Chi( key = 22): 358.871	Chi( key = 23): 784.34	
+Chi( key = 24): 748.073	Chi( key = 25): 436.967	

@@ -37,11 +37,9 @@ int main(int argc, char* argv[])
 			//file name set
 			name = dir;
 			name.append("/Decrypt_BruteForce_KEY_");
-					
-			++key[len - 1];
-
+			
 			//check key
-			for(int k = len - 1; k >= 0; k--)
+			for(int k = len - 1; k > 0; k--)
 			{
 				if(key[k] >  'Z')
 				{
@@ -58,6 +56,8 @@ int main(int argc, char* argv[])
 			fout << c.vigenere(msg, key, false);
 				
 			fout.close();		
+
+			key[len - 1]++;
 		}
 
 	}catch(const exception& e){
