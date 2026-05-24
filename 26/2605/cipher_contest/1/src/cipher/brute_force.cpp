@@ -4,6 +4,7 @@
 #include <vector>
 #include <filesystem>
 #include <stdexcept>
+#include <thread>
 #include "cipher.h"
 using namespace std;
 
@@ -13,10 +14,16 @@ string org_msg(const char*);
 
 int main(int argc, char* argv[])
 {
-	int len, div = 26, start = 0, end;
+	int len, div = 26;
 	string msg, dir, name;
-	cipher c;
-	fstream fout;
+	vector<thread> t;
+
+    //check hardware's thread count
+    unsigned int hw_threads = std::thread::hardware_concurrency();
+
+    int num_threads = (hw_threads >= 4) ? 4 : 2;
+
+	div = div / num_threads;
 
 	try{
 		if(argc != 2)
@@ -25,6 +32,9 @@ int main(int argc, char* argv[])
 		take_klen(len);
 		string key(len, 'A');
 		string end(len, 'Z');
+		end[0] = 'A';
+		end[0] += div;
+
 		//make dirctory for save result
 		dir = is_dir(argv[1]);
 
@@ -32,33 +42,65 @@ int main(int argc, char* argv[])
 		msg = org_msg(argv[1]);
 
 
-	    while(key != end) 
-   		{
-			//file name set
-			name = dir;
-			name.append("/Decrypt_BruteForce_KEY_");
-			
-			//check key
-			for(int k = len - 1; k > 0; k--)
+    	for (int i = 0; i < num_threads; ++i) 
+    	{	
+        	//start threading
+        	t.emplace_back([&msg, end, &key, &name, dir, len]() 
 			{
-				if(key[k] >  'Z')
+				fstream fout;
+				cipher c;
+				while(key != end)
 				{
-					key[k] = 'A';
-					++key[k - 1];
-				}
-			}
+					//file name set
+					name = dir;
 
-			name.append(key + ".txt");	
+					//check key
+					for(int k = len - 1; k > 0; k--)
+					{		
+						if(key[k] >  'Z')
+						{	
+							key[k] = 'A';
+							++key[k - 1];
+						}
+					}
 
-			fout.open(name, ios::out);
-			if(!fout.is_open())
-				throw ios_base::failure("Failed to open File");
-			fout << c.vigenere(msg, key, false);
+					name.append("/Decrypt_BruteForce_KEY_" + key + ".txt");
+					
+					fout.open(name, ios::out);
+					if(!fout.is_open())
+						throw ios_base::failure("Failed to open File");
+					fout << c.vigenere(msg, key, false);
 				
-			fout.close();		
+					fout.close();		
 
-			key[len - 1]++;
+					key[len - 1]++;
+				}
+
+				name = dir;
+				name.append("/Decrypt_BruteForce_KEY_" + end + ".txt");
+
+				fout.open(name, ios::out);
+				if(!fout.is_open())
+					throw ios_base::failure("Failed to open File");
+
+				fout << c.vigenere(msg, end, false);
+
+				fout.close();
+			});
+			
+			key[0] += div + 1;
+
+			if(i != num_threads)
+				end[0] += div;
+			else
+				end[0] = 'Z';
+			
 		}
+
+	    //if it allow to join, join thread
+	    for (auto& it : t)
+	        if (it.joinable()) 
+				it.join();
 
 	}catch(const exception& e){
 		cerr << "[Error]: " << e.what() << endl;
@@ -79,7 +121,7 @@ void take_klen(int& len)
 	cin >> l;
 	
 	len = l;
-	cout << len << endl;
+	
 	if((len >= 1) && (len <= 5))
 		return;
 	else
