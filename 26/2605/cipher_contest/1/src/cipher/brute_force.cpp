@@ -15,7 +15,7 @@ string org_msg(const char*);
 int main(int argc, char* argv[])
 {
 	int len, div = 26;
-	string msg, dir, name;
+	string msg, dir;
 	vector<thread> t;
 
     //check hardware's thread count
@@ -45,8 +45,9 @@ int main(int argc, char* argv[])
     	for (int i = 0; i < num_threads; ++i) 
     	{	
         	//start threading
-        	t.emplace_back([&msg, end, &key, &name, dir, len]() 
+        	t.emplace_back([&msg, end, key, dir, len]() 
 			{
+				string name, chg_key = key;
 				fstream fout;
 				cipher c;
 				while(key != end)
@@ -57,10 +58,10 @@ int main(int argc, char* argv[])
 					//check key
 					for(int k = len - 1; k > 0; k--)
 					{		
-						if(key[k] >  'Z')
+						if(chg_key[k] >  'Z')
 						{	
-							key[k] = 'A';
-							++key[k - 1];
+							chg_key[k] = 'A';
+							++chg_key[k - 1];
 						}
 					}
 
@@ -69,11 +70,11 @@ int main(int argc, char* argv[])
 					fout.open(name, ios::out);
 					if(!fout.is_open())
 						throw ios_base::failure("Failed to open File");
-					fout << c.vigenere(msg, key, false);
+					fout << c.vigenere(msg, chg_key, false);
 				
 					fout.close();		
 
-					key[len - 1]++;
+					chg_key[len - 1]++;
 				}
 
 				name = dir;
