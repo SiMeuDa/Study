@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <filesystem>
 #include <stdexcept>
 #include <cmath>
 #include <future>
@@ -20,7 +19,7 @@ int main(int argc, char* argv[])
 	int klen, div = 26;
 	string msg, dir;
 	vector<double> tetra, result;
-	vector<future<double>> t;
+	vector<future<vector<double>>> t;
 
     //check hardware's thread count
     unsigned int hw_threads = std::thread::hardware_concurrency();
@@ -53,7 +52,7 @@ int main(int argc, char* argv[])
     	for (int i = 0; i < num_threads; ++i) 
     	{	
         	//start threading
-        	t.emplace_back(launch::async, [&msg, tetra, end, key, dir, klen]() 
+        	t.push_back(async(launch::async, [&msg, tetra, end, key, dir, klen]() 
 			{
 				string result, chg_key = key;
 				char** value;
@@ -149,7 +148,7 @@ int main(int argc, char* argv[])
 				delete[] value;
 
 				return res;
-			});
+			}));
 			
 			key[0] += div + 1;
 
@@ -159,12 +158,12 @@ int main(int argc, char* argv[])
 				end[0] = 'Z';
 			
 		}
+		vector<double> vecmax = {-1.0};
 
 	    //if it allow to join, join thread
 	    for (auto& it : t)
 	    {
-			vector<double> r = it.get(), vecmax;
-			vecmax[0] = -1;
+			vector<double> r = it.get();
 
 			if(r[0] > vecmax[0])
 				vecmax = r;
@@ -236,8 +235,6 @@ string is_dir(string name)
 {
 	name.erase(name.end() - 4, name.end());
 	name.append("_BruteForce");
-
-	filesystem::create_directories(name);
 
 	return name;
 }
