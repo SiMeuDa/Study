@@ -28,13 +28,18 @@ int main(int argc, char* argv[])
 
 	div = div / num_threads;
 	
-	tetra.resize(4);
+	tetra.resize(4, 0.0);
 
 	try{
 		if(argc != 3)
 			throw invalid_argument("Invalid Argument");
 	
 	 	tetragram(argv[1], tetra);
+		
+		for(auto& a : tetra)
+			cout << a << endl;
+
+		return 0;
 
 		take_klen(klen);
 		string key(klen, 'A');
@@ -112,7 +117,7 @@ int main(int argc, char* argv[])
 						for(int k = 0; k < 4; k++)
 							if(strstr(value[j], value[k]) != nullptr)
 									comp += tetra[k];
-						
+
 						if(comp > m)
 						{
 							m = comp;
@@ -191,7 +196,7 @@ void tetragram(const char* path, vector<double>& bias)
 		"TION",
 		"WITH"
 		};
-
+	
 	fstream f;
 	string str;
 	size_t pos;
