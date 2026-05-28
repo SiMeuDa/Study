@@ -36,11 +36,6 @@ int main(int argc, char* argv[])
 	
 	 	tetragram(argv[1], tetra);
 		
-		for(auto& a : tetra)
-			cout << a << endl;
-
-		return 0;
-
 		take_klen(klen);
 		string key(klen, 'A');
 		string end(klen, 'Z');
@@ -93,29 +88,31 @@ int main(int argc, char* argv[])
 				}
 				while(true)
 				{
+					//break condition
 					if(chg_key[0] == '[' or chg_key[klen - 1] == '[')
 						break;
 
 					//vigenere == string return
 					result = c.vigenere(msg, chg_key, false);
 
-					//divie to tetra
+					//divie origin msg to tetra
 					for(int j = 0; j < len; j += 4)
 					{
-						for(int k = j; k < 4; k++)
+						for(int k = 0; k < 4; k++)
 						{
-							if(k <= len)
-								(value[j])[k] = result[k];
+							if(j + k <= len)
+								(value[j / 4])[k] = result[j + k];
 							else
-								(value[j])[k] = ' ';
+								(value[j / 4])[k] = ' ';
 						}
+						value[j/4][4] = '\0';
 					}
 					
 					//tetragram logic
 					for(int j = 0; j < len / 4 + 1; j += 4)
 					{
-						for(int k = 0; k < 4; k++)
-							if(strstr(value[j], value[k]) != nullptr)
+						for(int k = 0; k < 4; k++)	//if two str is same, strncmp return 0
+							if(strncmp(table[k], value[j], 4) == 0)
 									comp += tetra[k];
 
 						if(comp > m)
@@ -125,9 +122,14 @@ int main(int argc, char* argv[])
 							res[0] = m;
 
 							for(int k = 1; k <= klen; k++)
-								res[k] = static_cast<double>(chg_key[k - 1]);
+								res[k] = static_cast<double>(chg_key[k - 1] - 'A');
 						}
+
 					}
+				
+					cout << "key: " << chg_key << ", tetra: " << comp << endl;
+					
+					comp = 0;
 
 					//increase most left key value
 					chg_key[klen - 1]++;
@@ -176,6 +178,10 @@ int main(int argc, char* argv[])
 		
 		key = string(klen, 'A');
 
+		for(int i = 0; i < klen; i++){
+			key[i] += vecmax[i + 1];
+		}
+
 		clog << "[RESULT] Key: " << key << endl;
 
 
@@ -199,18 +205,18 @@ void tetragram(const char* path, vector<double>& bias)
 	
 	fstream f;
 	string str;
-	size_t pos;
+	size_t pos = 0;
 	f.open(path);
 	if(!f.is_open())
 		throw ios_base::failure("Failed to open File");
 
 	while(getline(f, str))
 	{
-		while(pos != string::npos)
+		for(int i = 0; i < 4; i++)
 		{
-			for(int i = 0; i < 4; i++)
+			while(pos != string::npos)
 			{
-				pos = str.find(table[i]);
+				pos = str.find(table[i], pos + 1);
 				if(pos != string::npos)
 					bias[i]++;
 			}
