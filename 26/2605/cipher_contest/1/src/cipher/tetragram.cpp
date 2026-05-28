@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
 				string result, chg_key = key, gram;
 				double m = 0, comp = 0;
 				bool isFirst = true;
+				bool isMatch = false;
 				vector<double> res;
 				res.resize(klen + 1);
 
@@ -83,6 +84,7 @@ int main(int argc, char* argv[])
 						break;
 
 					comp = 0;
+					isMatch = false;
 
 					//vigenere == string return
 					result = c.vigenere(msg, chg_key, false);
@@ -92,10 +94,10 @@ int main(int argc, char* argv[])
 					{
 						gram = result.substr(j, 4);
 						for(int k = 0; k < 4; k++){
-							if(strncmp(table[k], gram.c_str(), 4) == 0)
+							if(strncmp(table[k], gram.c_str(), 4) == 0){
 								comp += tetra[k];
-							else
-								comp -= 1;
+								isMatch = true;
+							}
 						}
 					}
 			
@@ -103,6 +105,9 @@ int main(int argc, char* argv[])
 						m = comp;
 						isFirst = false;
 					}
+
+					if(!isMatch)
+						comp += -1;
 
 					if(comp > m)
 					{
