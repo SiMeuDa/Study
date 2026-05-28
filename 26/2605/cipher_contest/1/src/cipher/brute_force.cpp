@@ -54,8 +54,7 @@ int main(int argc, char* argv[])
         	//start threading
         	t.push_back(async(launch::async, [&msg, tetra, end, key, dir, klen]() 
 			{
-				string result, chg_key = key;
-				char** value;
+				string result, chg_key = key, gram;
 				double m = -1, comp = 0;
 				vector<double> res;
 				res.resize(klen + 1);
@@ -73,19 +72,6 @@ int main(int argc, char* argv[])
 
 				len = msg.length();
 		
-				value = new char*[len / 4 + 1];
-		
-				for(int i = 0; i < len / 4 + 1; i++)
-				{
-					value[i] = new char[5];
-					if(value[i] == nullptr)
-					{
-						for(int j = 0; j < i; j++)
-							delete value[i];
-		
-						delete[] value;
-					}
-				}
 				while(true)
 				{
 					//break condition
@@ -96,37 +82,23 @@ int main(int argc, char* argv[])
 					result = c.vigenere(msg, chg_key, false);
 
 					//divie origin msg to tetra
-					for(int j = 0; j < len; j += 4)
+					for(int j = 0; j < len - 3; j++)
 					{
+						gram = result.substr(j, 4);
 						for(int k = 0; k < 4; k++)
-						{
-							if(j + k <= len)
-								(value[j / 4])[k] = result[j + k];
-							else
-								(value[j / 4])[k] = ' ';
-						}
-						value[j/4][4] = '\0';
-					}
-					
-					//tetragram logic
-					for(int j = 0; j < len / 4 + 1; j += 4)
-					{
-						for(int k = 0; k < 4; k++)	//if two str is same, strncmp return 0
-							if(strncmp(table[k], value[j], 4) == 0)
-									comp += tetra[k];
+							if(strncmp(table[k], gram.c_str(), 4) == 0)
+								comp += tetra[k];
 
 						if(comp > m)
 						{
 							m = comp;
-							
-							res[0] = m;
+							res[0] = comp;
 
 							for(int k = 1; k <= klen; k++)
 								res[k] = static_cast<double>(chg_key[k - 1] - 'A');
 						}
-
 					}
-				
+					
 					cout << "key: " << chg_key << ", tetra: " << comp << endl;
 					
 					comp = 0;
@@ -148,11 +120,6 @@ int main(int argc, char* argv[])
 					if(chg_key == end)
 						break;
 				}
-
-				for(int j = 0; j < len / 4 + 1; j++)
-					delete[] value[j];
-
-				delete[] value;
 
 				return res;
 			}));
@@ -210,6 +177,10 @@ void tetragram(const char* path, vector<double>& bias)
 	if(!f.is_open())
 		throw ios_base::failure("Failed to open File");
 
+	for(auto& it: bias)
+		it = 0;
+
+
 	while(getline(f, str))
 	{
 		for(int i = 0; i < 4; i++)
@@ -223,8 +194,13 @@ void tetragram(const char* path, vector<double>& bias)
 		}
 	}
 
-	for(int i = 0; i < 4; i++)
-		bias[i] = log10(bias[i]);
+	for(int i = 0; i < 4; i++){
+
+		if(bias[i] != 0)
+			bias[i] += log10(bias[i]);
+		else
+			bias[i] += log(0.1);
+	}
 
 	return;
 }
