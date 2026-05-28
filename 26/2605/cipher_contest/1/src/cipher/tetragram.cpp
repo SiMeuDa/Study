@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
 			{
 				string result, chg_key = key, gram;
 				double m = 0, comp = 0;
+				bool isFirst = true;
 				vector<double> res;
 				res.resize(klen + 1);
 
@@ -93,11 +94,17 @@ int main(int argc, char* argv[])
 						for(int k = 0; k < 4; k++){
 							if(strncmp(table[k], gram.c_str(), 4) == 0)
 								comp += tetra[k];
+							else
+								comp -= 1;
 						}
 					}
+			
+					if(isFirst){
+						m = comp;
+						isFirst = false;
+					}
 
-
-					if(comp < m)
+					if(comp > m)
 					{
 						m = comp;
 						res[0] = comp;
@@ -142,7 +149,7 @@ int main(int argc, char* argv[])
 	    {
 			vector<double> r = it.get();
 			if(!isFirst){
-				if(r[0] < vecmax[0])
+				if(r[0] > vecmax[0])
 					vecmax = r;
 			}
 			else{
@@ -208,7 +215,7 @@ void tetragram(const char* path, vector<double>& bias)
 	for(int i = 0; i < 4; i++){
 
 		if(bias[i] != 0)
-			bias[i] = log10(bias[i] / len);
+			bias[i] = -log10(bias[i] / len);
 		else
 			bias[i] = log(0.1 / len);
 	}
