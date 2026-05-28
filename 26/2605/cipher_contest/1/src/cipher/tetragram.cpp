@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         	t.push_back(async(launch::async, [&msg, tetra, end, key, dir, klen]() 
 			{
 				string result, chg_key = key, gram;
-				double m, comp = 0;
+				double m = 0, comp = 0;
 				vector<double> res;
 				res.resize(klen + 1);
 
@@ -73,14 +73,15 @@ int main(int argc, char* argv[])
 				int len;
 
 				len = msg.length();
-			
-				m = -(len * 4);
+		
 
 				while(true)
 				{
 					//break condition
-					if(chg_key[0] == '[' or chg_key[klen - 1] == '[')
+					if(chg_key[0] > 'Z' or chg_key[klen - 1] > 'Z')
 						break;
+
+					comp = 0;
 
 					//vigenere == string return
 					result = c.vigenere(msg, chg_key, false);
@@ -92,24 +93,21 @@ int main(int argc, char* argv[])
 						for(int k = 0; k < 4; k++){
 							if(strncmp(table[k], gram.c_str(), 4) == 0)
 								comp += tetra[k];
-							else
-								comp -= 8;
 						}
 					}
 
 
-					if(comp > m)
+					if(comp < m)
 					{
 						m = comp;
 						res[0] = comp;
 
 						for(int k = 1; k <= klen; k++)
-							res[k] = static_cast<double>(chg_key[k - 1] - 'A');
+							res[k] = static_cast<double>(chg_key[k - 1]);
 					}
 						
-					clog << "Key: " << chg_key << ", tetra: " << comp << endl;
+					clog << "Key: " << chg_key << ", tetra: " << comp << ", m: " << m <<  endl;
 							
-					comp = 0;
 
 					//increase most left key value
 					chg_key[klen - 1]++;
@@ -124,9 +122,6 @@ int main(int argc, char* argv[])
 						}
 					}
 
-					//end condition
-					if(chg_key == end)
-						break;
 				}
 
 				return res;
@@ -141,23 +136,25 @@ int main(int argc, char* argv[])
 			
 		}
 		bool isFirst = true;
-		vector<double> vecmax;
-
+		vector<double> vecmax = {0.0};
 	    //if it allow to join, join thread
 	    for (auto& it : t)
 	    {
 			vector<double> r = it.get();
-			if(!isFirst)
-				if(r[0] > vecmax[0])
+			if(!isFirst){
+				if(r[0] < vecmax[0])
 					vecmax = r;
-			else
+			}
+			else{
 				vecmax = r;
+				isFirst = false;
+			}
 		}
 		
 		key = string(klen, 'A');
 
 		for(int i = 0; i < klen; i++){
-			key[i] += vecmax[i + 1];
+			key[i] = vecmax[i + 1];
 		}
 
 		clog << "[RESULT] Key: " << key << ", Tetragram: " << vecmax[0] << endl;
@@ -184,12 +181,10 @@ void tetragram(const char* path, vector<double>& bias)
 	fstream f;
 	string str;
 	size_t pos = 0;
+	int len = 0;
 	f.open(path);
 	if(!f.is_open())
 		throw ios_base::failure("Failed to open File");
-
-	for(auto& it: bias)
-		it = 0;
 
 
 	while(getline(f, str))
@@ -204,9 +199,11 @@ void tetragram(const char* path, vector<double>& bias)
 					bias[i]++;
 			}
 		}
+		len += str.length();
 	}
 
-	int len = str.length();
+	f.close();
+
 
 	for(int i = 0; i < 4; i++){
 
