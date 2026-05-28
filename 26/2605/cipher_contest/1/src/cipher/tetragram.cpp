@@ -55,12 +55,14 @@ int main(int argc, char* argv[])
         	t.push_back(async(launch::async, [&msg, tetra, end, key, dir, klen]() 
 			{
 				string result, chg_key = key, gram;
-				double m = -1, comp = 0;
+				double m, comp = 0;
 				vector<double> res;
 				res.resize(klen + 1);
+
 				for(int j = 0; j < klen + 1; j++)
 					res[j] = 0;
 
+				//Simplified Table
 				char table[4][5]= { 
 					"THER",
 					"HERE",
@@ -71,7 +73,9 @@ int main(int argc, char* argv[])
 				int len;
 
 				len = msg.length();
-		
+			
+				m = -(len * 4);
+
 				while(true)
 				{
 					//break condition
@@ -85,22 +89,26 @@ int main(int argc, char* argv[])
 					for(int j = 0; j < len - 3; j++)
 					{
 						gram = result.substr(j, 4);
-						for(int k = 0; k < 4; k++)
+						for(int k = 0; k < 4; k++){
 							if(strncmp(table[k], gram.c_str(), 4) == 0)
 								comp += tetra[k];
-
-						if(comp > m)
-						{
-							m = comp;
-							res[0] = comp;
-
-							for(int k = 1; k <= klen; k++)
-								res[k] = static_cast<double>(chg_key[k - 1] - 'A');
+							else
+								comp -= 8;
 						}
 					}
-					
-					cout << "key: " << chg_key << ", tetra: " << comp << endl;
-					
+
+
+					if(comp > m)
+					{
+						m = comp;
+						res[0] = comp;
+
+						for(int k = 1; k <= klen; k++)
+							res[k] = static_cast<double>(chg_key[k - 1] - 'A');
+					}
+						
+					clog << "Key: " << chg_key << ", tetra: " << comp << endl;
+							
 					comp = 0;
 
 					//increase most left key value
@@ -132,14 +140,17 @@ int main(int argc, char* argv[])
 				end[0] = 'Z';
 			
 		}
-		vector<double> vecmax = {-1.0};
+		bool isFirst = true;
+		vector<double> vecmax;
 
 	    //if it allow to join, join thread
 	    for (auto& it : t)
 	    {
 			vector<double> r = it.get();
-
-			if(r[0] > vecmax[0])
+			if(!isFirst)
+				if(r[0] > vecmax[0])
+					vecmax = r;
+			else
 				vecmax = r;
 		}
 		
@@ -149,7 +160,7 @@ int main(int argc, char* argv[])
 			key[i] += vecmax[i + 1];
 		}
 
-		clog << "[RESULT] Key: " << key << endl;
+		clog << "[RESULT] Key: " << key << ", Tetragram: " << vecmax[0] << endl;
 
 
 	}catch(const exception& e){
@@ -185,6 +196,7 @@ void tetragram(const char* path, vector<double>& bias)
 	{
 		for(int i = 0; i < 4; i++)
 		{
+			pos = 0;
 			while(pos != string::npos)
 			{
 				pos = str.find(table[i], pos + 1);
@@ -194,12 +206,14 @@ void tetragram(const char* path, vector<double>& bias)
 		}
 	}
 
+	int len = str.length();
+
 	for(int i = 0; i < 4; i++){
 
 		if(bias[i] != 0)
-			bias[i] += log10(bias[i]);
+			bias[i] = log10(bias[i] / len);
 		else
-			bias[i] += log(0.1);
+			bias[i] = log(0.1 / len);
 	}
 
 	return;
