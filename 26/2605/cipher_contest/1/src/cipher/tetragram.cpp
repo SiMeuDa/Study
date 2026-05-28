@@ -84,7 +84,8 @@ int main(int argc, char* argv[])
 						break;
 
 					comp = 0;
-
+					isMatch = false;
+					
 					//vigenere == string return
 					result = c.vigenere(msg, chg_key, false);
 
@@ -94,13 +95,14 @@ int main(int argc, char* argv[])
 						gram = result.substr(j, 4);
 						for(int k = 0; k < 4; k++){
 							if(strncmp(table[k], gram.c_str(), 4) == 0){
+								isMatch = true;
 								comp += tetra[k];
 							}
-							else
-								comp += -8;
 						}
 					}
-			
+					
+					if(!isMatch)
+						comp += -8;
 
 					if(isFirst){
 						m = comp;
@@ -219,7 +221,7 @@ void tetragram(const char* path, vector<double>& bias)
 	for(int i = 0; i < 4; i++){
 
 		if(bias[i] != 0)
-			bias[i] = log10(bias[i] / len);
+			bias[i] = -log10(bias[i] / len);
 		else
 			bias[i] = log(0.1 / len);
 	}
