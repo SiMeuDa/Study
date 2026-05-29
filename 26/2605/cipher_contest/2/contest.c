@@ -88,6 +88,7 @@ void permute_20rounds(state256_t *state,
                      const uint64_t constants1[4],
                      const uint64_t constants2[4]) {
     for (int r = 0; r < 20; r++) {
+		permute_one_round(state, rot, shuffle_map, constants2, constants1);
         // TODO: Complete this implementation.
     }
 }
@@ -98,7 +99,7 @@ void permute_20rounds(state256_t *state,
 int main(void) {
     /* one-round test parameters */
     // TODO: Set rot to proper values.
-    const unsigned int rot[4] = { 21, 57, 35, 50 };
+    const unsigned int rot[4] = { 43, 7, 29, 14 };
 
     uint8_t shuffle_map[32];
     for (int i = 0; i < 32; i++) {

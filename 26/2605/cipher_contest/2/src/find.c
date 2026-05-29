@@ -24,7 +24,7 @@ static inline uint64_t rotl64(uint64_t x, unsigned int n) {
 void rotate_words_left_64wise(state256_t *state, state256_t* comp, const unsigned int rot[4]) {
     for (int i = 0; i < 4; i++) {
 		for(unsigned int j = 0;j < 64; j++){
-			if(rotl64(state->w[i], j) == comp->w[i]){
+			if(rotl64(comp->w[i], j) == state->w[i]){
 				printf("rot[%d]: %d\n", i, j);
 				break;
 			}
