@@ -1,0 +1,17 @@
+services:
+
+  forensic:
+
+    build: .
+
+    container_name: forensic
+
+    stdin_open: true
+
+    tty: true
+
+    volumes:
+
+      - ./:/workspace
+
+    working_dir: /workspace
