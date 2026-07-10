@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #include <string>
 #include <string_view>
 #include "cipher.h"
@@ -18,6 +19,8 @@ int main(int argc, char* argv[])
 	cipher c;
 	int i;
 	i = 0;
+	if(argc == 3)
+		i = atoi(argv[2]);
 	
 	for(i; i < 26; i++)
 	{
@@ -41,8 +44,6 @@ int main(int argc, char* argv[])
 		{
 			cerr << "Failed to open " << file_name << " File" << endl;
 			fin.close();
-			return -1;
-			cerr << "Failed to open " << file_name << " file" << endl;
 			return -1;
 		}
 
