@@ -35,7 +35,9 @@ int main(int argc, char* argv[])
 	{
 		while(strORG.find("DSZ", start) != string::npos)
 		{
-			index[i] = strORG.find("DSZ");
+			if(i == 50)
+				break;
+			index[i] = strORG.find("DSZ", start);
 
 			start = index[i++] + 1;
 		}
@@ -45,12 +47,16 @@ int main(int argc, char* argv[])
 
 	for(int i = 0; i < 50; i++)
 	{
+		if(index[i] == 0)
+			continue;
+
 		for(int j = 0; j < 50; j++)
 		{
-			if((index[j] == 0) && j)
-				break;
+			if((index[j] == 0) || i == j)
+				continue;
 
-			cout << "GCD(" << i << ", " << j << "): " << gcd(i, j) << endl;
+			cout << "GCD(" << index[i] << ", " << index[j] << "): ";
+		        cout << gcd(index[i], index[j]) << endl;
 		}
 	}
 
