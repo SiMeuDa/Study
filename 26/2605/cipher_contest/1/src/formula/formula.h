@@ -25,7 +25,11 @@ double formula::IC(uint16_t* alpha, size_t size, uint16_t N)
 		return sum;
 	}(alpha, size, N);
 
-	return (sigma / (N * (N - 1)));
+	sigma = (sigma / (N * (N - 1)));
+
+	sigma = std::round(sigma * 1000.0) / 1000.0;
+
+	return sigma;
 }
 
 double formula::Chis(uint16_t* alpha, size_t size, uint16_t N)
