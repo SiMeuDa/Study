@@ -132,7 +132,8 @@ int main(int argc, char* argv[])
 					//low frequency -> small score
 					for(int j = 0; j < len - 3; j++)
 					{
-						it_table = table.find(msg.substr(j, 4));
+						//save find result
+						it_table = table.find(decrypt.substr(j, 4));
 						//find value
 						if(it_table != table.end())
 							score += it_table->second;
@@ -162,15 +163,16 @@ int main(int argc, char* argv[])
 					//check key valid alphabet value
 					for(int k = klen - 1; k > 0; k--)
 					{	
-						//check chg_key's validation
-						if(chg_key[0] > 'Z')
-							break;
 						if(chg_key[k] >  'Z')
 						{	
 							chg_key[k] = 'A';
 							++chg_key[k - 1];
 						}
 					}
+
+					//check chg_key's validation
+					if(chg_key[0] > 'Z')
+						break;
 
 				}
 
