@@ -24,6 +24,7 @@ string org_msg(const char*);
 
 int main(int argc, char* argv[])
 {
+	bool isPrint = false;
 	//klen = key len
 	int klen;
 
@@ -52,12 +53,17 @@ int main(int argc, char* argv[])
 	sekey.resize(num_threads + 1);
 	
 	try{
-		//argument count
-		if(argc != 3)
-			throw invalid_argument("[Usage]: ./[file_name] [comparing msg] [original msg]");
+		//check argument validation
+		if((argc != 5) or
+		(argv[1] != "-p"sv) or 
+		(argv[2] != "1"sv and argv[2] != "0"sv))
+			throw invalid_argument("[Usage]: ./[file_name] -p [1(print)/0(don't print)] [comparing msg] [original msg]");
+
+		//set flags
+		isPrint = atoi(argv[2]);
 
 		//setting table
-	 	set_table(argv[1], table);
+	 	set_table(argv[3], table);
 		
 		//take key's len
 		take_klen(klen);
@@ -78,7 +84,7 @@ int main(int argc, char* argv[])
 
 
 		//take original message from file
-		msg = org_msg(argv[2]);
+		msg = org_msg(argv[4]);
 
 
     	for (int i = 0; i < num_threads; ++i) 
@@ -89,32 +95,36 @@ int main(int argc, char* argv[])
 		//sekey[i] = start point
 		//sekey[i + 1] = end point
 		//klen = key len
-        	t.push_back(async(launch::async, [&msg, table, sekey[i], sekey[i + 1], klen]() 
+        	t.push_back(async(launch::async, [&msg, &table, s_key = sekey[i], e_key = sekey[i + 1], klen, isPrint]() 
 			{
 				//result = saving rseult
 				//chg_key = changing key
 				//gram = tetramgram result
-				string chg_key = sekey[i], gram;
-				string_view = sv_msg
+				string chg_key = s_key, gram;
+				string_view  sv_msg;
 
 				//comp = compare value -> change to max
 				//m = now m value
-				double compare = numeric_limits<double>::min();
+				double compare = numeric_limits<double>::lowest(), score = 0;
 				
 				//saving & return result
-				RESULT res;
+				RESULT local_result;
+				
 				
 				//object for using vigenere
 				cipher c;
 				//string len
 				int len;
 
-				//start == end -> break
-				while(sekey[i] != sekey[i + 1])
+				//now == end -> break
+				while(strncmp(chg_key.c_str(), e_key.c_str(), klen) < 0)
 				{
+					score = 0.0;
+
 					//vigenere == string return
 					sv_msg = c.vigenere(msg, chg_key, false);
-
+					
+					len = sv_msg.length();
 					
 					//calculate tetramgram score
 					//high frequency -> big score
@@ -122,13 +132,16 @@ int main(int argc, char* argv[])
 					for(int j = 0; j < len - 3; j++)
 					{
 						//find value
-						if(table.find(sv_msg.substr(j, 4)) != table.end())
-							score += table[sv_msg.substr(j, 4)];
+						if(table.find(string(sv_msg.substr(j, 4)))!= table.end())
+							score += table[string(sv_msg.substr(j, 4))];
 						else
-							score += table["!Match"];
+							score += table.at("!Match");
 
 					}
-				
+
+					if(isPrint)
+						clog << "Key: " << chg_key << ", Tetragram: " << score << "\n";
+
 					//find biggest value
 					if(compare < score)
 					{
@@ -136,8 +149,8 @@ int main(int argc, char* argv[])
 						compare = score;
 
 						//save return value
-						res.score = score;
-						res.key = chg_key;
+						local_result.score = score;
+						local_result.key = chg_key;
 					}
 
 					//increase most left key value
@@ -155,24 +168,21 @@ int main(int argc, char* argv[])
 
 				}
 
-				return res;
+				return local_result;
 			}));
 		}
 		
-	bool isFirst = true;
-
-	RESULT final_result = {string(klen, 'Z'), numeric_limits<double>::min()};
+	RESULT final_result = {string(klen, 'Z'), numeric_limits<double>::lowest()};
 
 	    //if it allow to join, join thread
 	    for (auto& it : t)
 	    {
-		    RESULT r = it.get();
+		    RESULT thread_result = it.get();
 			
-		    if(r.score > final_result.score)
+		    if(thread_result.score > final_result.score)
 		    {
-			    final_result.key = r.key;
-			    final_result.score = final_result.score;
-	
+			    final_result.key = thread_result.key;
+			    final_result.score = thread_result.score;
 		    }
 	
 	    }
