@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     	//check hardware's thread count
 	unsigned int hw_threads = std::thread::hardware_concurrency();
 
-	int num_threads = (hw_threads >= 4) ? 4 : 2;
+	int num_threads = max(1u, min(hw_threads, 4u));
 
 	//set sekey size
 	sekey.resize(num_threads + 1);
@@ -82,10 +82,8 @@ int main(int argc, char* argv[])
 
 		//set end point
 		sekey[num_threads] = string(klen, 'Z');
-		
 
-
-		//take original message from file
+		//take original message from file & erase space
 		msg = org_msg(argv[4]);
 
 		for (int i = 0; i < num_threads; ++i) 
@@ -101,7 +99,9 @@ int main(int argc, char* argv[])
 				//result = saving rseult
 				//chg_key = changing key
 				//gram = tetramgram result
-				string chg_key = s_key, msg;
+				string chg_key = s_key, decrypt;
+
+				unordered_map<string, double>::iterator it_table;
 
 				//comp = compare value -> change to max
 				//m = now m value
@@ -123,18 +123,19 @@ int main(int argc, char* argv[])
 					score = 0.0;
 
 					//vigenere == string return
-					msg = c.vigenere(msg, chg_key, false);
+					decrypt = c.vigenere(msg, chg_key, false);
 					
-					len = msg.length();
+					len = decrypt.length();
 					
 					//calculate tetramgram score
 					//high frequency -> big score
 					//low frequency -> small score
 					for(int j = 0; j < len - 3; j++)
 					{
+						it_table = table.find(msg.substr(j, 4));
 						//find value
-						if(table.find(msg.substr(j, 4))!= table.end())
-							score += table[msg.substr(j, 4)];
+						if(it_table != table.end())
+							score += it_table->second;
 						else
 							score += table.at("!Match");
 
@@ -160,7 +161,10 @@ int main(int argc, char* argv[])
 					
 					//check key valid alphabet value
 					for(int k = klen - 1; k > 0; k--)
-					{		
+					{	
+						//check chg_key's validation
+						if(chg_key[0] > 'Z')
+							break;
 						if(chg_key[k] >  'Z')
 						{	
 							chg_key[k] = 'A';
@@ -208,7 +212,8 @@ void set_table(const char* path, unordered_map<string, double>& table)
 	fstream f;
 	string str;
 	
-	int len = 0, count = 0, min = 0;
+	int len = 0, count = 0;
+	double min = 0.0;
 	string left = "";
 
 	f.open(path);
@@ -231,7 +236,8 @@ void set_table(const char* path, unordered_map<string, double>& table)
 		left = str.substr(str.length() - 4, 3);
 	
 		//total tetragram count
-		count += len - 3;
+		if(len >= 4)
+			count += len - 3;
 		
 		//table exist, add value
 		for(int i = 0; i < len - 3; i++)
@@ -268,7 +274,7 @@ void take_klen(int& len)
 		else
 			throw range_error("Out of Range");
 	}
-	catch(const ios_base::failure e){
+	catch(const ios_base::failure& e){
 		//cin exception
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
