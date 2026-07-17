@@ -24,7 +24,9 @@ string org_msg(const char*);
 
 int main(int argc, char* argv[])
 {
+	//log printing flags
 	bool isPrint = false;
+
 	//klen = key len
 	int klen;
 
@@ -86,22 +88,20 @@ int main(int argc, char* argv[])
 		//take original message from file
 		msg = org_msg(argv[4]);
 
-
-    	for (int i = 0; i < num_threads; ++i) 
-    	{	
-        	//start lambda threading
-		//msg: original message
-		//table: set table on set_table
-		//sekey[i] = start point
-		//sekey[i + 1] = end point
-		//klen = key len
-        	t.push_back(async(launch::async, [&msg, &table, s_key = sekey[i], e_key = sekey[i + 1], klen, isPrint]() 
+		for (int i = 0; i < num_threads; ++i) 
+    		{	
+        		//start lambda threading
+			//msg: original message
+			//table: set table on set_table
+			//sekey[i] = start point
+			//sekey[i + 1] = end point
+			//klen = key len
+        		t.push_back(async(launch::async, [&msg, &table, s_key = sekey[i], e_key = sekey[i + 1], klen, isPrint]() 
 			{
 				//result = saving rseult
 				//chg_key = changing key
 				//gram = tetramgram result
-				string chg_key = s_key, gram;
-				string_view  sv_msg;
+				string chg_key = s_key, msg;
 
 				//comp = compare value -> change to max
 				//m = now m value
@@ -110,21 +110,22 @@ int main(int argc, char* argv[])
 				//saving & return result
 				RESULT local_result;
 				
-				
 				//object for using vigenere
 				cipher c;
+				
 				//string len
 				int len;
 
 				//now == end -> break
-				while(strncmp(chg_key.c_str(), e_key.c_str(), klen) < 0)
+				while(strncmp(chg_key.c_str(), e_key.c_str(), klen) <= 0)
 				{
+					//init score
 					score = 0.0;
 
 					//vigenere == string return
-					sv_msg = c.vigenere(msg, chg_key, false);
+					msg = c.vigenere(msg, chg_key, false);
 					
-					len = sv_msg.length();
+					len = msg.length();
 					
 					//calculate tetramgram score
 					//high frequency -> big score
@@ -132,13 +133,14 @@ int main(int argc, char* argv[])
 					for(int j = 0; j < len - 3; j++)
 					{
 						//find value
-						if(table.find(string(sv_msg.substr(j, 4)))!= table.end())
-							score += table[string(sv_msg.substr(j, 4))];
+						if(table.find(msg.substr(j, 4))!= table.end())
+							score += table[msg.substr(j, 4)];
 						else
 							score += table.at("!Match");
 
 					}
-
+	
+					//if print flag is true print else don't
 					if(isPrint)
 						clog << "Key: " << chg_key << ", Tetragram: " << score << "\n";
 
@@ -172,11 +174,11 @@ int main(int argc, char* argv[])
 			}));
 		}
 		
-	RESULT final_result = {string(klen, 'Z'), numeric_limits<double>::lowest()};
+		RESULT final_result = {string(klen, 'Z'), numeric_limits<double>::lowest()};
 
-	    //if it allow to join, join thread
-	    for (auto& it : t)
-	    {
+	    	//if it allow to join, join thread
+	    	for (auto& it : t)
+	    	{
 		    RESULT thread_result = it.get();
 			
 		    if(thread_result.score > final_result.score)
@@ -184,19 +186,20 @@ int main(int argc, char* argv[])
 			    final_result.key = thread_result.key;
 			    final_result.score = thread_result.score;
 		    }
+	     	}
+
+	    	//print result
+	    	clog << "[RESULT] Key: " << final_result.key << ", Tetragram: " << final_result.score << endl;
 	
-	    }
-
-	    //print result
-	    clog << "[RESULT] Key: " << final_result.key << ", Tetragram: " << final_result.score << endl;
-
 	}catch(const exception& e){
+		//print out exception
 		cerr << "[Error]: " << e.what() << endl;
+		//Error end
 		return -1;
 	}
-    
-	return 0;
 
+    	//normal end
+	return 0;
 }
 
 void set_table(const char* path, unordered_map<string, double>& table)
@@ -207,7 +210,6 @@ void set_table(const char* path, unordered_map<string, double>& table)
 	
 	int len = 0, count = 0, min = 0;
 	string left = "";
-	string_view sv_msg;
 
 	f.open(path);
 	if(!f.is_open())
@@ -224,18 +226,16 @@ void set_table(const char* path, unordered_map<string, double>& table)
 		//take length
 		len = str.length();
 		
-		//copy to string_view
-		//To Prevent additional string copy
-		sv_msg = str;
 
 		//take left string
 		left = str.substr(str.length() - 4, 3);
 	
 		//total tetragram count
 		count += len - 3;
+		
 		//table exist, add value
 		for(int i = 0; i < len - 3; i++)
-			table[sv_msg.substr(i, 4).data()] += 1;
+			table[str.substr(i, 4)] += 1;
 	}
 
 	f.close();
