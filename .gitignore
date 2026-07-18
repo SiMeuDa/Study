@@ -54,6 +54,7 @@ compile_commands.json
 # Temporary files
 *.tmp
 *.log
+!result*.log
 *.bak
 *.swp
 
@@ -68,4 +69,4 @@ Testing/
 .cache/
 myenv/
 *.zip
-!result*.log
+!result*.zip
