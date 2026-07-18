@@ -3,11 +3,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <immintrin.h> // AVX2 최적화를 위한 헤더 추가
 
 typedef struct {
     uint64_t w[4];
 } state256_t;
+
+static inline __attribute__((always_inline))
+uint64_t rotl64_fast(uint64_t x, unsigned int n){ return (x << n) | ( x >> (64 - n) ); }
+
+static inline __attribute__((always_inline))
+void reverse32bytes(state256_t *state)
+{
+    uint8_t *p = (uint8_t*)state;
+
+    for (int i = 0; i < 16; ++i)
+    {
+        uint8_t t = p[i];
+        p[i] = p[31 - i];
+        p[31 - i] = t;
+    }
+}
+
+
 
 /* -------------------------------------------------
  * Utility functions
@@ -66,88 +83,61 @@ void add_constants_64wise(state256_t *state, const uint64_t constants1[4]) {
     }
 }
 
-// === HELPER FUNCTIONS/MACROS (AVX2 최적화 헬퍼 함수) ===
-static inline __m256i avx2_permute_round(__m256i v, __m256i rot_L, __m256i rot_R, 
-                                         __m256i vc2, __m256i bswap_mask, __m256i vc1) {
-    __m256i shl = _mm256_sllv_epi64(v, rot_L);
-    __m256i shr = _mm256_srlv_epi64(v, rot_R);
-    v = _mm256_or_si256(shl, shr);
-    v = _mm256_xor_si256(v, vc2);
-    // 64비트 단어 단위 순서 뒤집기 (w0, w1, w2, w3 -> w3, w2, w1, w0)
-    v = _mm256_permute4x64_epi64(v, _MM_SHUFFLE(0, 1, 2, 3));
-    // 각 64비트 내부 바이트 순서 뒤집기 (bswap)
-    v = _mm256_shuffle_epi8(v, bswap_mask);
-    return _mm256_add_epi64(v, vc1);
+static inline __attribute__((always_inline))
+void permute_one_round_fast(
+    state256_t *__restrict state,
+    const unsigned int rot[4],
+    const uint8_t shuffle_map[32],
+    const uint64_t constants2[4],
+    const uint64_t constants1[4])
+{
+    /* Rotation */
+    state->w[0] = rotl64_fast(state->w[0], rot[0]);
+    state->w[1] = rotl64_fast(state->w[1], rot[1]);
+    state->w[2] = rotl64_fast(state->w[2], rot[2]);
+    state->w[3] = rotl64_fast(state->w[3], rot[3]);
+
+    /* XOR */
+    state->w[0] ^= constants2[0];
+    state->w[1] ^= constants2[1];
+    state->w[2] ^= constants2[2];
+    state->w[3] ^= constants2[3];
+
+    /* Byte shuffle */
+    shuffle_bytes_256(state, shuffle_map);
+
+    /* ADD */
+    state->w[0] += constants1[0];
+    state->w[1] += constants1[1];
+    state->w[2] += constants1[2];
+    state->w[3] += constants1[3];
 }
-
-static inline void fast_20rounds(state256_t *state,
-                                 const unsigned int rot[4],
-                                 const uint64_t c1[4],
-                                 const uint64_t c2[4]) {
-    __m256i v = _mm256_loadu_si256((const __m256i*)state);
-    __m256i vc1 = _mm256_loadu_si256((const __m256i*)c1);
-    __m256i vc2 = _mm256_loadu_si256((const __m256i*)c2);
-
-    __m256i rot_L = _mm256_set_epi64x(rot[3], rot[2], rot[1], rot[0]);
-    __m256i rot_R = _mm256_sub_epi64(_mm256_set1_epi64x(64), rot_L);
-
-    // BSWAP mask
-    __m256i bswap_mask = _mm256_set_epi8(
-        8, 9, 10, 11, 12, 13, 14, 15,
-        0, 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 10, 11, 12, 13, 14, 15,
-        0, 1, 2, 3, 4, 5, 6, 7
-    );
-
-    #pragma GCC unroll 20
-    for (int i = 0; i < 20; i++) {
-        v = avx2_permute_round(v, rot_L, rot_R, vc2, bswap_mask, vc1);
-    }
-
-    _mm256_storeu_si256((__m256i*)state, v);
-}
-// =======================================================
-
 
 /* -------------------------------------------------
  * 1) One-round permutation:
- * rotation -> XOR -> shuffling -> add
- * (uses a fixed reverse-byte shuffle internally)
+ *    rotation -> XOR -> shuffling -> add
+ *    (uses a fixed reverse-byte shuffle internally)
  * ------------------------------------------------- */
 void permute_one_round(state256_t *state,
                        const unsigned int rot[4],
                        const uint8_t shuffle_map[32],
                        const uint64_t constants2[4],
                        const uint64_t constants1[4]) {
-    (void)shuffle_map; // Unused in optimized version but kept in signature
-    __m256i v = _mm256_loadu_si256((const __m256i*)state);
-    __m256i vc1 = _mm256_loadu_si256((const __m256i*)constants1);
-    __m256i vc2 = _mm256_loadu_si256((const __m256i*)constants2);
-    __m256i rot_L = _mm256_set_epi64x(rot[3], rot[2], rot[1], rot[0]);
-    __m256i rot_R = _mm256_sub_epi64(_mm256_set1_epi64x(64), rot_L);
-    __m256i bswap_mask = _mm256_set_epi8(
-        8, 9, 10, 11, 12, 13, 14, 15,
-        0, 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 10, 11, 12, 13, 14, 15,
-        0, 1, 2, 3, 4, 5, 6, 7
-    );
-    v = avx2_permute_round(v, rot_L, rot_R, vc2, bswap_mask, vc1);
-    _mm256_storeu_si256((__m256i*)state, v);
+	permute_one_round_fast(state, rot, shuffle_map, constants2, constants1);
 }
 
 /* -------------------------------------------------
  * 2) 20-round permutation
- * uses the same constants1/constants2 for all rounds
+ *    uses the same constants1/constants2 for all rounds
  * ------------------------------------------------- */
 void permute_20rounds(state256_t *state,
                      const unsigned int rot[4],
-                     const uint8_t shuffle_map[32],
+                      const uint8_t shuffle_map[32],
                      const uint64_t constants1[4],
                      const uint64_t constants2[4]) {
-    (void)shuffle_map; // 최적화 루틴에서는 고정된 바이트 리버스 특성을 사용하므로 무시
     for (int r = 0; r < 20; r++) {
-        // 루프는 그대로 유지하되, r == 0 일 때 20번의 라운드를 메모리 접근 없이 레지스터에서 한 번에 처리합니다.
-        if (r == 0) fast_20rounds(state, rot, constants1, constants2);
+		permute_one_round_fast(state, rot, shuffle_map, constants2, constants1);
+        // TODO: Complete this implementation.
     }
 }
 
@@ -156,6 +146,7 @@ void permute_20rounds(state256_t *state,
  * ------------------------------------------------- */
 int main(void) {
     /* one-round test parameters */
+    // TODO: Set rot to proper values.
     const unsigned int rot[4] = { 43, 7, 29, 14 };
 
     uint8_t shuffle_map[32];
