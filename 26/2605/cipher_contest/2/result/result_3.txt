@@ -1,0 +1,11 @@
+=== Test 1: one round I/O ===
+one-round testvector verification: OK (1000 pairs checked)
+
+=== Test 2: 20 rounds ===
+20-round testvector verification: OK
+
+=== Test 3: timing of 20-round permutation ===
+benchmark final state = 407b6c00d4644ffb 7b5eeeeb7bbbfd53 787627ff592edbdb 942319215bb84f88
+iterations           = 1000000
+total elapsed time   = 0.752198 sec
+average per 20rounds = 0.752198 us
