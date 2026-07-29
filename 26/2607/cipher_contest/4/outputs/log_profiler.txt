@@ -1,0 +1,182 @@
+==========================================================================================
+LOG PROFILER
+==========================================================================================
+==========================================================================================
+GENERAL
+==========================================================================================
+Total Lines        : 251,212,533
+Parse Failure      : 0
+
+First Timestamp    : 2026-03-24 01:20:01
+Last Timestamp     : 2027-08-16 19:28:15] INF[2027-08-16 19:28:16
+
+==========================================================================================
+LOG LEVELS
+==========================================================================================
+INFO         125,615,706
+DEBUG        75,364,810
+ERROR        25,116,678
+WARNING      25,115,339
+
+==========================================================================================
+MODELS
+==========================================================================================
+guest                                         6,284,225
+batch                                         6,279,990
+api_ro                                        6,278,881
+u1                                            6,276,863
+TinyLlama/TinyLlama-1.1B-Chat-v1.0            1
+api_[2026-03-24 04:01:30] WARNING: Throttling user  1
+gu[2026-03-24 07:06:45] WARNING: Throttling user  1
+bat[2026-03-24 19:10:29] WARNING: Throttling user  1
+a[2026-03-26 04:11:06] WARNING: Throttling user  1
+gue[2026-03-31 15:48:02] WARNING: Throttling user  1
+[2026-04-04 06:20:39] WARNING: Throttling user  1
+batch[2026-04-04 09:58:17] WARNING: Throttling user  1
+api_[2026-04-14 14:02:01] WARNING: Throttling user  1
+gue[2026-04-15 07:52:29] WARNING: Throttling user  1
+ap[2026-04-19 03:40:03] WARNING: Throttling user  1
+u1[2026-04-21 23:38:58] WARNING: Throttling user  1
+u1[2026-04-22 07:50:11] WARNING: Throttling user  1
+batch[2026-04-22 16:24:52] WARNING: Throttling user  1
+api[2026-04-22 18:21:41] WARNING: Throttling user  1
+g[2026-04-27 04:41:29] WARNING: Throttling user  1
+
+==========================================================================================
+KEYWORDS
+==========================================================================================
+secret          0
+key             0
+flag            0
+weather         0
+temperature     0
+stegan          0
+encode          0
+decode          0
+hidden          0
+embed           0
+watermark       0
+prompt          0
+system          0
+developer       0
+assistant       0
+user            25,122,189
+tool            0
+inject          0
+token           25,134,174
+inference       0
+generate        0
+completion      0
+
+==========================================================================================
+TOP MESSAGE PREFIX
+==========================================================================================
+25,114,862  Batch tokenizer queue depth
+25,114,155  Prometheus scrape /metrics - 200 OK
+ 8,372,856  WebSocket ping from 172
+ 8,371,615  WebSocket ping from 10
+ 8,371,327  WebSocket ping from 192
+ 6,279,582  Throttling user 'guest' (rate limit)
+ 6,275,368  Throttling user 'batch' (rate limit)
+ 6,274,207  Throttling user 'api_ro' (rate limit)
+ 6,272,175  Throttling user 'u1' (rate limit)
+ 1,142,784  Layer norm epsilon check passed on block 6
+ 1,142,455  Layer norm epsilon check passed on block 12
+ 1,142,240  Layer norm epsilon check passed on block 18
+ 1,142,056  Layer norm epsilon check passed on block 2
+ 1,141,873  Layer norm epsilon check passed on block 11
+ 1,141,758  Layer norm epsilon check passed on block 8
+ 1,141,635  Layer norm epsilon check passed on block 3
+ 1,141,467  Layer norm epsilon check passed on block 21
+ 1,141,422  Layer norm epsilon check passed on block 0
+ 1,141,375  Layer norm epsilon check passed on block 19
+ 1,141,241  Layer norm epsilon check passed on block 4
+ 1,141,169  Layer norm epsilon check passed on block 16
+ 1,141,041  Layer norm epsilon check passed on block 14
+ 1,140,988  Layer norm epsilon check passed on block 20
+ 1,140,900  Layer norm epsilon check passed on block 9
+ 1,140,891  Layer norm epsilon check passed on block 5
+ 1,140,741  Layer norm epsilon check passed on block 17
+ 1,140,518  Layer norm epsilon check passed on block 7
+ 1,140,465  Layer norm epsilon check passed on block 15
+ 1,140,450  Layer norm epsilon check passed on block 13
+ 1,140,414  Layer norm epsilon check passed on block 10
+ 1,140,308  Layer norm epsilon check passed on block 1
+ 1,047,221  Transient RPC timeout to shard-6 (retry 2)
+ 1,047,165  Transient RPC timeout to shard-5 (retry 2)
+ 1,047,085  Transient RPC timeout to shard-5 (retry 1)
+ 1,046,291  Transient RPC timeout to shard-6 (retry 1)
+ 1,046,170  Transient RPC timeout to shard-1 (retry 1)
+ 1,046,141  Transient RPC timeout to shard-1 (retry 2)
+ 1,046,096  Transient RPC timeout to shard-2 (retry 2)
+ 1,046,089  Transient RPC timeout to shard-4 (retry 2)
+ 1,046,044  Transient RPC timeout to shard-0 (retry 3)
+ 1,045,885  Transient RPC timeout to shard-7 (retry 2)
+ 1,045,879  Transient RPC timeout to shard-4 (retry 1)
+ 1,045,873  Transient RPC timeout to shard-3 (retry 3)
+ 1,045,867  Transient RPC timeout to shard-4 (retry 3)
+ 1,045,730  Transient RPC timeout to shard-5 (retry 3)
+ 1,045,682  Transient RPC timeout to shard-6 (retry 3)
+ 1,045,620  Transient RPC timeout to shard-3 (retry 1)
+ 1,045,525  Transient RPC timeout to shard-7 (retry 3)
+ 1,045,333  Transient RPC timeout to shard-2 (retry 3)
+ 1,045,250  Transient RPC timeout to shard-3 (retry 2)
+
+==========================================================================================
+TOP HOURS
+==========================================================================================
+2026-12-17 15:00   20,842
+2026-03-31 05:00   20,825
+2026-09-18 01:00   20,797
+2027-03-16 18:00   20,788
+2027-05-11 14:00   20,781
+2027-04-06 08:00   20,775
+2026-09-09 07:00   20,772
+2027-06-17 01:00   20,748
+2026-07-12 04:00   20,747
+2026-05-16 17:00   20,746
+2026-09-09 16:00   20,746
+2026-05-23 19:00   20,745
+2026-04-17 04:00   20,744
+2026-12-11 22:00   20,744
+2027-04-17 05:00   20,744
+2026-09-12 15:00   20,743
+2027-08-14 21:00   20,741
+2026-07-19 07:00   20,739
+2026-07-31 01:00   20,737
+2027-06-12 11:00   20,733
+2026-09-19 01:00   20,732
+2026-11-20 07:00   20,732
+2026-09-15 09:00   20,731
+2027-06-19 22:00   20,730
+2026-06-25 17:00   20,729
+2026-07-08 19:00   20,729
+2026-05-06 02:00   20,726
+2026-05-27 23:00   20,724
+2026-03-26 21:00   20,723
+2026-03-25 00:00   20,722
+2026-04-04 16:00   20,721
+2026-11-30 14:00   20,721
+2027-06-16 12:00   20,720
+2027-02-04 14:00   20,719
+2026-04-19 04:00   20,717
+2026-05-16 21:00   20,716
+2027-05-11 05:00   20,716
+2027-07-27 12:00   20,716
+2026-12-26 10:00   20,715
+2026-12-27 11:00   20,715
+2026-04-09 06:00   20,714
+2027-01-24 20:00   20,714
+2026-06-13 01:00   20,713
+2027-01-13 08:00   20,713
+2026-10-19 21:00   20,712
+2026-10-25 15:00   20,712
+2026-06-21 10:00   20,711
+2026-07-23 23:00   20,711
+
+==========================================================================================
+SUMMARY
+==========================================================================================
+Unique Levels           : 4
+Unique Models           : 218
+Unique Message Prefixes : 129,517
