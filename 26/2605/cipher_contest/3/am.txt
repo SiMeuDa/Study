@@ -1,1 +1,0 @@
-action=set_salary&uid=0007&amt=0100&month=202603

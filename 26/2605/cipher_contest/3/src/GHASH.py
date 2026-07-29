@@ -27,7 +27,7 @@ def gf_multiply(a, b):
 
 # 1. 2단계 다항식 연립을 통해 최종 확정된 인증키 H (예시 고유 근 적용)
 # [참고: 실제 환경에서는 다항식 근 찾기 함수를 통해 유일하게 결정됨]
-H_fixed_hex = "f797d6472c23855bb343cbdd46f27e65"
+H_fixed_hex = input("H value: ")
 
 # 2. Record 3 입력 데이터 설정
 T3_orig = bytes.fromhex("b0d6e0ac2be205621f7ea4a034519f95")
