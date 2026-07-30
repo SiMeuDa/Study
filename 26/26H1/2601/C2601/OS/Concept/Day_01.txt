@@ -1,0 +1,11 @@
+OS have three major goals
+
+First, Memory virtualization
+	-> OS make virtual CPU, so OS is often called for Virtual Machine
+	-> Program has each virtual memory that can access same address 
+		(different physical address)
+
+Second, Concurrency
+	-> 
+
+Third, Persistency

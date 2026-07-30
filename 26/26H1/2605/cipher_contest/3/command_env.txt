@@ -1,0 +1,5 @@
+1. Start
+source myenv/bin/activate
+
+2. End
+deactivate
