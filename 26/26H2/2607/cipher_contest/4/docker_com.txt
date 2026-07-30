@@ -1,0 +1,16 @@
+# 프로젝트 디렉터리로 이동
+cd ~/forensics
+
+# 컨테이너 시작
+docker compose up -d
+
+# 컨테이너 내부 접속
+docker exec -it forensic bash
+
+# (Docker 내부에서 작업)
+
+# Host로 복귀
+exit
+
+# 컨테이너 종료
+docker compose down
